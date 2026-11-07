@@ -9,6 +9,12 @@ Rebuild from the repository root:
   .local/brochure-venv/bin/pip install -r docs/brochure/requirements.txt
   .local/brochure-venv/bin/python docs/brochure/generate_brochure.py
 
+Before publishing, validate the PDF structure with qpdf (installed separately):
+  qpdf --check docs/brochure/CIPHER_Technical_Sheet.pdf
+Resolve every warning; PDF viewers may silently recover malformed metadata
+that upload and conversion services reject. The generator uses ReportLab's
+public language option so the document language is correctly encoded.
+
 Computer Society branding is shared with the website and slide deck through
 website/brand/theme.json. Typography: Montserrat headings and Open Sans body
 text. Color: charcoal, white, CS orange #FFA300, with blue #00629B for links

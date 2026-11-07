@@ -72,13 +72,13 @@ def pdf():
         pdfmetrics.registerFont(TTFont(f"Montserrat-{weight}", str(FONTS / f"Montserrat-{weight}.ttf")))
     pdfmetrics.registerFontFamily("OpenSans-Regular", normal="OpenSans-Regular", bold="OpenSans-Bold")
     width, height = A4
+    # The public language option encodes /Lang as a valid PDF string.
     c = canvas.Canvas(str(HERE / f"{STEM}.pdf"), pagesize=A4, pageCompression=1,
-                      invariant=1, initialFontName="OpenSans-Regular")
+                      invariant=1, initialFontName="OpenSans-Regular", lang="en-US")
     c.setTitle("CIPHER | Network detection and response")
     c.setAuthor("The Four Horsemen / IEEE Computer Society")
     c.setSubject("One-page project technical sheet")
     c.setKeywords("CIPHER, IEEE Computer Society, eBPF, XDP, Rust, network security, prototype")
-    c._doc.Catalog.Lang = "en-US"
     margin, usable = 42, width - 84
 
     def rect(x, top, w, h, fill):
