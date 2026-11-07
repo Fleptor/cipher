@@ -68,7 +68,7 @@ Every `hook NAME` above means `python3 scripts/booth.py hook NAME`. Hooks wait f
 - For stale UI, use Refresh; if logged out, use the current session's login file. A new booth session has a new password.
 - For a hook failure, read its error and the session's `server.log`. `hook status` shows policy acknowledgment, the latest command and incident.
 - If a real provider fails, Ctrl-C and restart with `--llm fixture`. Announce the mode change. This starts fresh history.
-- If the live UI cannot be recovered promptly, play [the recorded software walkthrough](demo/CIPHER_demo.mp4) and use the [PDF deck](presentation/CIPHER_Startup_Alley_Pitch.pdf). The recording uses the fixture and simulated sensor too.
+- If the live UI cannot be recovered promptly, play [the recorded software walkthrough](demo/CIPHER_demo.mp4) and use the [PDF deck](presentation/CIPHER_Slide_Deck_Pitch.pdf). The recording uses the fixture and simulated sensor too.
 - Rebooting may clear temporary storage. To retain session logs, set `CIPHER_BOOTH_DATA_DIR` to a local persistent directory. Prefer local disk over NFS for SQLite.
 
 Keep the laptop charged and sleep disabled during presenting. The reliable software demo needs no cloud connectivity. Avoid attaching the physical sensor to the event network as a substitute for a rehearsed, controlled gateway test.

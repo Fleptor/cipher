@@ -3,27 +3,27 @@
 <head>
 <meta charset="utf-8">
 <title>CIPHER Network Defense</title>
+<link rel="icon" href="../../website/favicon.svg" type="image/svg+xml">
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Sora:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="../../website/brand/brand.css">
 <style>
 /* Layout: one narrow reading column; the evidence panel and the gate break out wider, like the dashboard's own cards. */
 :root {
-  /* Dashboard palette (ui-dashboard/styles.css), extended with two surfaces. */
-  --bg: #0c131c;
-  --panel: #111c28;
-  --panel-2: #152231;
-  --line: #23303f;
-  --text: #ecf1f5;
-  --muted: #92a3b4;
-  --green: #8ce8c2;
-  --purple: #a59af5;
-  --amber: #efc47c;
+  /* Computer Society palette, with dark surfaces inspired by @ieee_bau_cs. */
+  --bg: #202020;
+  --panel: #282828;
+  --panel-2: #323232;
+  --line: #484848;
+  --text: #ffffff;
+  --muted: #c6c6c6;
+  --green: #ffa300;
+  --purple: #00b5e2;
+  --amber: #ffa300;
   --red: #f28e97;
-  --display: "Sora", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
-  --body: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --display: var(--heading-font);
+  --body: var(--body-font);
+  --mono: "DejaVu Sans Mono", ui-monospace, monospace;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -43,7 +43,7 @@ h2 { font-size: clamp(1.5rem, 3.4vw, 2.1rem); line-height: 1.15; font-weight: 60
 h3 { font-size: 1.05rem; font-weight: 600; }
 p { margin: 0; }
 a { color: var(--green); text-underline-offset: 3px; }
-a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; border-radius: 4px; }
+a:focus-visible, button:focus-visible, input:focus-visible, .table-wrap:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; border-radius: 4px; }
 .eyebrow { font: 500 0.72rem/1.4 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); }
 .lede { color: var(--muted); font-size: 1.12rem; max-width: 60ch; }
 .prose { max-width: 66ch; display: grid; gap: 14px; }
@@ -73,7 +73,7 @@ h1 em { font-style: normal; color: var(--green); }
 .feature-row b { font-weight: 500; }
 .feature-row .mono { font-size: 0.78rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .track { position: relative; height: 8px; border-radius: 4px; background: var(--panel-2); overflow: hidden; }
-.track .base { position: absolute; inset: 0 auto 0 0; background: #2c3d50; }
+.track .base { position: absolute; inset: 0 auto 0 0; background: #555555; }
 .track .obs { position: absolute; inset: 0 auto 0 0; border-radius: 4px; }
 .feature.flag .obs { background: var(--amber); }
 .feature.calm .obs { background: var(--green); }
@@ -95,7 +95,7 @@ h1 em { font-style: normal; color: var(--green); }
 .toggle { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); cursor: pointer; }
 .toggle:last-of-type { border-bottom: 0; }
 .toggle small { display: block; color: var(--muted); font-size: 0.8rem; line-height: 1.45; }
-.switch { appearance: none; width: 42px; height: 24px; border-radius: 999px; background: #2a3a4c; position: relative; cursor: pointer; margin: 0; transition: background 0.15s; flex: none; }
+.switch { appearance: none; width: 42px; height: 24px; border-radius: 999px; background: #555555; position: relative; cursor: pointer; margin: 0; transition: background 0.15s; flex: none; }
 .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--text); transition: transform 0.15s; }
 .switch:checked { background: var(--green); }
 .switch:checked::after { transform: translateX(18px); background: var(--bg); }
@@ -165,16 +165,29 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16
 @media (prefers-reduced-motion: reduce) {
   .switch, .switch::after { transition: none; }
 }
+
+.chapter-identity { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px; background: #fff; border-bottom: 4px solid var(--orange); }
+.chapter-identity img { width: 200px; height: auto; max-width: 42%; }
+.chapter-identity .branch-logo { width: 164px; }
+.chapter-identity a { color: #00629b; font: 600 .85rem var(--body-font); }
+.pill.green { color: #a6d570; }
+.feature.calm .obs { background: #a6d570; }
+@media(max-width:600px) { .chapter-identity { padding: 20px 16px; gap: 20px; } .chapter-identity a { display: none; } }
 </style>
 </head>
 <body>
 
 <main>
+  <div class="chapter-identity" role="group" aria-label="Project organizations">
+    <img src="../../website/brand/logos/ieee-computer-society.png" alt="IEEE Computer Society" width="200" height="61">
+    <a href="https://www.instagram.com/ieee_bau_cs/">@ieee_bau_cs</a>
+    <img class="branch-logo" src="../../website/brand/logos/ieee-bau-branch.png" alt="IEEE Al-Balqa Applied University, Faculty of Engineering Technology student branch" width="164" height="80">
+  </div>
   <header class="hero">
     <div class="hero-copy">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">C</div>
-        <div><div class="brand-name">CIPHER</div><div class="brand-sub">Network defense · IEEE CS</div></div>
+        <div><div class="brand-name">CIPHER</div><div class="brand-sub">Network defense · IEEE BAU CS</div></div>
       </div>
       <h1>A security guard for the <em>office network</em>.</h1>
       <p class="lede">CIPHER learns each device's normal routine, notices when one behaves strangely, explains why in plain English, and quarantines that device only when you allow it to.</p>
@@ -236,7 +249,7 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16
           <label for="g-conf"><span>AI confidence</span><output id="g-conf-out" for="g-conf">92 / 100</output></label>
           <input type="range" id="g-conf" min="0" max="100" value="92">
         </div>
-        <div class="presets" aria-label="Scenarios">
+        <div class="presets" role="group" aria-label="Scenarios">
           <button type="button" data-preset="scan">Port scan</button>
           <button type="button" data-preset="download">Big download</button>
           <button type="button" data-preset="trusted">Trusted laptop</button>
@@ -269,7 +282,7 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16
     <p class="eyebrow">At the booth · about 3 minutes</p>
     <h2 id="tour">The guided tour</h2>
     <p class="muted">Run <span class="mono">python3 scripts/booth.py tour</span>. Each step runs the scenario and prints what to say.</p>
-    <div class="table-wrap">
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Guided tour steps, scroll horizontally for more columns">
       <table>
         <thead><tr><th>Step</th><th>What happens</th><th>What to say</th></tr></thead>
         <tbody>
@@ -319,7 +332,7 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16
   </section>
 
   <footer>
-    <span>CIPHER · The Four Horsemen · IEEE Computer Society technical project</span>
+    <span>CIPHER · The Four Horsemen · IEEE BAU Computer Society</span>
     <span class="stack">eBPF/XDP · Rust · Axum · SQLite · FlatBuffers · TLS WebSockets</span>
   </footer>
 </main>

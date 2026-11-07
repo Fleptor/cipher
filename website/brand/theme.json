@@ -1,0 +1,15 @@
+{
+  "orange": "FFA300",
+  "blue": "00629B",
+  "dark": "202020",
+  "ink": "171717",
+  "muted": "4A4A4A",
+  "line": "D5D5D5",
+  "pale": "FFF5E3",
+  "heading_font": "Montserrat",
+  "body_font": "Open Sans",
+  "branch_logo": "logos/ieee-bau-branch.png",
+  "society_logo": "logos/ieee-computer-society.png",
+  "branch_name": "IEEE BAU Computer Society",
+  "instagram": "https://www.instagram.com/ieee_bau_cs/"
+}

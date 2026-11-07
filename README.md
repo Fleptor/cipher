@@ -14,6 +14,7 @@ CIPHER collects eBPF/XDP metadata with a Rust sensor, sends acknowledged FlatBuf
 - [LLM setup: Anthropic, OpenAI-compatible endpoints and verification](docs/LLM_SETUP.md)
 - [Booth and physical-sensor setup, scenario hooks and recovery](docs/BOOTH_RUNBOOK.md)
 - [Readiness audit, delivered features and remaining limits](docs/BOOTH_READINESS.md)
+- [One-page technical sheet for the booth (PDF)](docs/brochure/CIPHER_Technical_Sheet.pdf) · [editable Word version](docs/brochure/CIPHER_Technical_Sheet.docx)
 - [Ten-slide student presentation and technical speaker notes](docs/presentation/README.md)
 - [Earlier dashboard integration review](docs/UI_INTEGRATION.md)
 

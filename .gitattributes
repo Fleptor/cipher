@@ -1,0 +1,4 @@
+# Generated presentation and print artifacts must remain byte-for-byte intact.
+*.pdf binary
+*.pptx binary
+*.docx binary

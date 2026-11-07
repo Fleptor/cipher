@@ -1,0 +1,35 @@
+CIPHER TECHNICAL SHEET
+
+CIPHER_Technical_Sheet.pdf is the one-page A4 print master.
+CIPHER_Technical_Sheet.docx is an editable Word version of the same content.
+Print the PDF at actual size (100%), single-sided, on A4 paper.
+
+Rebuild from the repository root:
+  python3 -m venv .local/brochure-venv
+  .local/brochure-venv/bin/pip install -r docs/brochure/requirements.txt
+  .local/brochure-venv/bin/python docs/brochure/generate_brochure.py
+
+Computer Society branding is shared with the website and slide deck through
+website/brand/theme.json. Typography: Montserrat headings and Open Sans body
+text. Color: charcoal, white, CS orange #FFA300, with blue #00629B for links
+and the supplied branch mark. The original BAU branch artwork replaces the
+generic IEEE master logo. See docs/brand/BRAND_AND_SOURCES.txt for provenance.
+
+The PDF builder uses website/brand/fonts and embeds its fonts. Install these
+TTF files before editing or exporting the Word version to preserve the intended
+layout. Font licenses are included in that directory. The Word file uses native
+text and tables; the QR code and branch logo are images. Recheck page count and
+wrapping after changes.
+
+Project sources:
+  README.md
+  website/index.html
+  docs/presentation/generate_pitch.py
+  docs/BOOTH_READINESS.md
+  Server/src/ai.rs (50-report baseline and four statistical features)
+  Server/src/router_socket.rs (cloud isolation gate)
+
+The sheet labels the booth simulation and remaining hardware/accuracy
+validation. It makes no measured security accuracy or performance claims.
+The QR code and clickable project link both point to:
+  https://belalhamdan.com/ieee-cs-tech-project/

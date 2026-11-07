@@ -277,7 +277,7 @@ The night before:
 - [ ] Fixture run: `start`, then `rehearse` passes, then one full `tour`.
 - [ ] AI run: `start --llm configured`, then **Test LLM connection**, then one `tour`.
 - [ ] Local model: run `ollama run <model> "hi"` once so it is downloaded and loads quickly.
-- [ ] The backups open offline: [demo video](demo/CIPHER_demo.mp4), [PDF slides](presentation/CIPHER_Startup_Alley_Pitch.pdf), [showcase page](showcase/index.html).
+- [ ] The backups open offline: [demo video](demo/CIPHER_demo.mp4), [PDF slides](presentation/CIPHER_Slide_Deck_Pitch.pdf), [showcase page](showcase/index.html).
 - [ ] Charger packed. Sleep and screen lock disabled for the day. Browser zoom at 110–125% so visitors can read the screen.
 
 At the booth:

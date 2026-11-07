@@ -84,7 +84,7 @@ Suggested three-minute walkthrough:
 5. `llm-outage`, then `scan`; show graceful fallback.
 6. `reset` before the next visitor.
 
-Keep the [recorded software walkthrough](demo/CIPHER_demo.mp4) and [PDF slides](presentation/CIPHER_Startup_Alley_Pitch.pdf) available as event-day backups. See the [presenter guide](DEMO_GUIDE.md) for narration and what can be claimed. Describe the offline fixture explicitly whenever it is active.
+Keep the [recorded software walkthrough](demo/CIPHER_demo.mp4) and [PDF slides](presentation/CIPHER_Slide_Deck_Pitch.pdf) available as event-day backups. See the [presenter guide](DEMO_GUIDE.md) for narration and what can be claimed. Describe the offline fixture explicitly whenever it is active.
 
 ## 5. Physical test network
 

@@ -6,9 +6,12 @@ on:
     paths:
       - 'website/**'
       - 'scripts/build_site.py'
+      - 'scripts/build_brand.py'
       - 'docs/presentation/**'
+      - 'docs/brochure/**'
       - 'docs/showcase/plain-english-incidents.png'
       - 'docs/demo/CIPHER_demo.mp4'
+      - 'docs/demo/incident-evidence.png'
       - '.github/workflows/website.yml'
   workflow_dispatch:
 

@@ -2,8 +2,8 @@
 
 Redesigned for first-year students on 7 November 2026: **10 slides**, with an 8–10 minute narrative and an optional dashboard demonstration. The original filenames are retained so existing links continue to work.
 
-- [Editable PowerPoint](CIPHER_Startup_Alley_Pitch.pptx): editable text and diagrams, with speaker notes on every slide.
-- [PDF](CIPHER_Startup_Alley_Pitch.pdf): portable presentation fallback.
+- [Editable PowerPoint](CIPHER_Slide_Deck_Pitch.pptx): editable text and diagrams, with speaker notes on every slide.
+- [PDF](CIPHER_Slide_Deck_Pitch.pdf): portable presentation fallback.
 - [Presenter notes](CIPHER_Presenter_Notes.txt): accessible plain-text narration, deeper engineering details and repository sources.
 - [Project website](https://belalhamdan.com/ieee-cs-tech-project/): the same explanation, demo and downloads in one page.
 
@@ -28,9 +28,11 @@ Terms are defined as they appear. Notes preserve the scoring formula and floors,
 python3 -m venv .local/slides-venv
 .local/slides-venv/bin/pip install -r docs/presentation/requirements.txt
 .local/slides-venv/bin/python docs/presentation/generate_pitch.py
-libreoffice --headless --convert-to pdf --outdir docs/presentation docs/presentation/CIPHER_Startup_Alley_Pitch.pptx
+libreoffice --headless --convert-to pdf --outdir docs/presentation docs/presentation/CIPHER_Slide_Deck_Pitch.pptx
 ```
 
-Use Georgia, Verdana and DejaVu Sans Mono for the intended rendering, or choose installed alternatives in the generator and inspect the PDF. The generator checks the slide count and shape bounds; inspect the rendered output for text wrapping after any edits. All essential content is text, with high contrast and no meaning conveyed by color alone. The standalone presenter notes are also available when slide reading order or font substitution is a concern.
+Install the bundled fonts from `website/brand/fonts` before opening or exporting the PowerPoint: Montserrat for headings and Open Sans for body text. The shared `website/brand/theme.json` defines the Computer Society palette used by the website and technical sheet too. Each slide has a charcoal header, orange rule, the original BAU branch logo, and the Computer Society logo. The PDF embeds its fonts.
+
+The generator checks slide count and shape bounds and fits long titles to the available width. Inspect the rendered output for text wrapping after edits. All essential content is text, with high contrast and no meaning conveyed by color alone. The standalone presenter notes remain available.
 
 Use [the demo guide](../DEMO_GUIDE.md) for presentation commands and [the readiness audit](../BOOTH_READINESS.md) for validation scope. The recorded demo is silent, uses synthetic traffic and a scripted reviewer, and does not establish physical enforcement.

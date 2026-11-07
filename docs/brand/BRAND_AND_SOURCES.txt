@@ -1,0 +1,77 @@
+CIPHER COMPUTER SOCIETY BRANDING
+Updated 7 November 2026.
+
+Scope
+  Project website: website/
+  Interactive web presentation: docs/showcase/index.html
+  Ten-slide deck and PDF: docs/presentation/
+  One-page PDF and editable Word sheet: docs/brochure/
+
+Shared source
+  website/brand/theme.json is the palette and typography source for the slide
+  and technical-sheet generators. scripts/build_brand.py derives brand.css
+  for the two web presentations. scripts/build_site.py packages the site,
+  local fonts, logos, deck and both technical-sheet formats.
+
+Official Computer Society guidance
+  https://www.computer.org/about/ieee-computer-society-brand-guide
+  https://ieeecs-media.computer.org/media/marketing/brand/ieee-cs-brand-guide-external.pdf
+  The PDF was fetched directly from computer.org's media host on 7 November
+  2026. An unchanged reference copy is included as IEEE-CS-Brand-Guide.pdf.
+  Applied pages 4-5: complete society mark and clear space of at least 0.3x
+  logo height. Page 7: primary orange #FFA300, blue #00629B, black and white.
+  Page 10: Montserrat headings and Open Sans for longer body copy.
+
+Chapter design reference
+  https://www.instagram.com/ieee_bau_cs/
+  Viewed the public profile and post grid in a browser, including the cloud
+  security workshop and IEEEXtreme highlights designs. The visual cues used
+  are charcoal backgrounds, orange emphasis, bold headings, thin orange rules
+  and a subtle technical grid. White body sections keep the documents readable
+  in print. No Instagram photos, thumbnails or third-party post artwork were
+  copied into the deliverables.
+
+Logo provenance
+  BAU branch: /home/fleptor/IEEE/Media/ieee-bau-branch.png
+  Copied byte-for-byte to website/brand/logos/ieee-bau-branch.png. The full
+  university/faculty wording, aspect ratio, original color and artwork are
+  preserved. It replaces the standalone IEEE master mark from the earlier
+  sheet. Each slide and both web presentations also show the supplied branch
+  mark on a plain white field. No newly fabricated chapter logo is used.
+
+  Computer Society: existing intact official-mark asset from
+  /home/fleptor/IEEE/Xtreme-Ambassador/booth/a4-booth-designs/source/assets/ieee-cs.png
+  That source was isolated from the official guide's page 4 correct-use example.
+  Its complete orange/black logo and trademark are retained unchanged.
+
+Fonts
+  Montserrat: https://github.com/google/fonts/tree/main/ofl/montserrat
+  Static Medium and Bold instances reused from the local IEEE design materials.
+  Open Sans: https://github.com/google/fonts/tree/main/ofl/opensans
+  Static Regular, SemiBold and Bold instances from the technical-sheet build.
+  Shared TTF files and the two SIL Open Font Licenses are in website/brand/fonts.
+  The websites load the fonts locally; PDF exports embed the fonts. Install the
+  bundled fonts before editing/exporting the PowerPoint and Word documents.
+
+Rebuild order
+  1. Install the dependencies in docs/presentation/requirements.txt and
+     docs/brochure/requirements.txt into a Python environment.
+  2. Run docs/presentation/generate_pitch.py and export the PPTX using LibreOffice.
+  3. Run docs/brochure/generate_brochure.py.
+  4. Run python3 scripts/build_site.py.
+
+Verification
+  Deck and PDF: 10 slides; branch image and presenter notes on every slide.
+  Technical sheet: PDF and Word export each fit one A4 page; QR code decodes.
+  Branch image in PPTX and DOCX matches the supplied file byte-for-byte.
+  PDF text bounds, font embedding and representative rendered pages inspected.
+  Both web presentations: responsive checks at 320, 390, 768 and 1440 pixels;
+  fonts/logos load; trusted-device and reviewer-outage interactions checked.
+  Automated WCAG A/AA checks passed at mobile and desktop sizes after making
+  the showcase's scrolling table keyboard-accessible. Color-contrast items on
+  off-screen table cells and the silent video alternative were manually reviewed.
+  These checks do not establish full accessibility certification.
+
+Publication
+  The existing GitHub Pages packaging/workflow is retained. This change builds
+  the local publication directory; it does not create a separate hosted Site.
