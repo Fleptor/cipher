@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#155759">
+  <title>CIPHER — Understand what your network is doing</title>
+  <meta name="description" content="A student-built network security prototype. CIPHER learns device routines, flags unusual traffic and helps an operator respond. Explore the design, demo and source.">
+  <link rel="canonical" href="https://belalhamdan.com/ieee-cs-tech-project/">
+  <meta property="og:title" content="CIPHER — Understand what your network is doing">
+  <meta property="og:description" content="A first look at CIPHER: network security, explained from the packet to the operator.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://belalhamdan.com/ieee-cs-tech-project/">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body id="top">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header wrap">
+    <a class="wordmark" href="#top" aria-label="CIPHER, back to top">CIPHER</a>
+    <nav aria-label="On this page">
+      <a href="#how-it-works">How it works</a>
+      <a href="#demo">Demo</a>
+      <a href="#resources">Slides &amp; source</a>
+    </nav>
+  </header>
+
+  <main id="main" class="wrap">
+    <section class="intro" aria-labelledby="title">
+      <p class="eyebrow">IEEE Computer Society · The Four Horsemen</p>
+      <h1 id="title">A device has a routine.<br>CIPHER notices<br>when it changes.</h1>
+      <div class="intro-bottom">
+        <p class="lead">A network security prototype that learns normal device activity, flags unusual traffic and helps a person decide what to do next.</p>
+        <p class="project-note">Student project<br>Linux · eBPF · Rust<br><a href="https://belalhamdan.com/en/fp/">A Belal Hamdan project</a></p>
+      </div>
+      <a class="button" href="#how-it-works">Explore the project <span aria-hidden="true">↓</span></a>
+    </section>
+
+    <section class="section split" id="idea" aria-labelledby="idea-title">
+      <div><p class="eyebrow">The idea</p><h2 id="idea-title">Know the routine.<br>Notice the exception.</h2></div>
+      <div class="prose">
+        <p>Think of a small office: laptops, a printer, a camera and a router. An existing firewall decides which traffic is allowed. CIPHER adds another question: <strong>is this device behaving as it usually does?</strong></p>
+        <p>A laptop suddenly trying many service ports is like someone trying every door handle in a building. It could be a scan. It could also be an administrator doing legitimate work. The change is a reason to investigate, not proof of an attack.</p>
+        <p>CIPHER brings the measurements, explanation and response controls into one dashboard. It is designed to complement the office’s existing protection.</p>
+      </div>
+    </section>
+
+    <section class="section" id="how-it-works" aria-labelledby="flow-title">
+      <p class="eyebrow">From a packet to an incident</p>
+      <h2 id="flow-title">The router watches. The server compares.</h2>
+      <p class="section-intro">A <strong>packet</strong> is a small unit of network traffic. CIPHER summarizes observations at the router, then sends reports to the server for analysis.</p>
+      <ol class="flow" aria-label="CIPHER data flow">
+        <li><h3>Linux router</h3><p>Small eBPF programs observe and filter packets at the XDP receive hook.</p></li>
+        <li><h3>Rust sensor</h3><p>A background program collects events and builds compact traffic summaries.</p></li>
+        <li><h3>Rust server</h3><p>Statistics flag changes. An optional AI reviewer explains the evidence.</p></li>
+        <li><h3>Operator</h3><p>A dashboard shows incidents, trust settings and response controls.</p></li>
+      </ol>
+      <p class="annotation"><strong>Reports travel over an encrypted connection.</strong> Response commands go back to the sensor; the dashboard distinguishes a request from its acknowledgment.</p>
+      <details>
+        <summary>The engineering underneath</summary>
+        <div class="detail-body">
+          <p><strong>eBPF</strong> runs small, verified programs in the Linux kernel, the core of the operating system. <strong>XDP</strong> is the receive hook used here; the current loader uses generic/SKB mode. The kernel emits events through a ring buffer. The Rust daemon aggregates metadata, with HyperLogLog used to estimate distinct addresses.</p>
+          <p>Reports use <strong>FlatBuffers</strong>, a compact binary format, over a TLS WebSocket. The control plane uses Rust, Axum and SQLite. Baselines, device trust and local blocks persist. A durable outbox, acknowledgments and retries help the sensor recover after disconnects.</p>
+          <p>The outbox retains up to 10,000 reports. Successful retries are deduplicated, but a crash between ingestion and receipt storage can still create duplicates. Reports older than 60 seconds are stored without driving current cloud isolation decisions. Telemetry retention is 24 hours.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="section split" id="detection" aria-labelledby="detection-title">
+      <div><p class="eyebrow">Learning normal</p><h2 id="detection-title">Four signals.<br>One device’s baseline.</h2><p class="aside-copy">A <strong>baseline</strong> is a reference for normal activity. A camera and a laptop should not be expected to behave alike.</p></div>
+      <div>
+        <dl class="signals">
+          <div><dt>Incoming bytes</dt><dd>How much incoming payload was observed.</dd></div>
+          <div><dt>Outgoing bytes</dt><dd>How much outgoing payload was observed.</dd></div>
+          <div><dt>Dropped events</dt><dd>How many reported packet events were blocked.</dd></div>
+          <div><dt>Port entropy</dt><dd>How spread out the observed use of service ports is.</dd></div>
+        </dl>
+        <p>The first <strong>50 reports</strong> establish the usual level and variation of each signal. Later reports are compared with that saved baseline. A deviation score <strong>above 3</strong> on any signal can raise an alert, subject to a per-device cooldown.</p>
+        <p>These are <strong>sampled observations</strong>, not complete connection counts or exact throughput. The current single-interface setup also needs better validation of traffic direction.</p>
+      </div>
+      <details class="full-width">
+        <summary>Show the scoring rule and a worked example</summary>
+        <div class="detail-body">
+          <p>The score measures distance from the average, divided by a scale that accounts for normal variation:</p>
+          <pre><code>score = abs(observed − mean) / scale
+scale = max(standard deviation, floor, abs(mean) × 0.1)</code></pre>
+          <p>The minimum scales are 4,096 bytes for each byte signal, 5 for dropped events and 0.25 for port entropy. These floors stop a tiny change after constant traffic from producing an enormous score.</p>
+          <p><strong>Illustrative example:</strong> a baseline of 10 KiB, a new observation of 34 KiB and a scale of 4 KiB produce a score of 24 ÷ 4 = <strong>6</strong>. That exceeds the threshold of 3. It does not tell us why the change happened.</p>
+          <p>The baseline stays fixed until reset; the training reports should represent ordinary activity. The default alert/review cooldown is 120 seconds. Thresholds and detection accuracy still need evaluation against real traffic.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="section split" id="response" aria-labelledby="response-title">
+      <div><p class="eyebrow">Explaining and responding</p><h2 id="response-title">An AI opinion.<br>An explicit policy.</h2></div>
+      <div class="prose">
+        <p>The language model receives the baseline, unusual measurements and recent report context. It returns an explanation, a block recommendation and a confidence score. <strong>Statistics raise the flag; the model reviews it.</strong></p>
+        <p>By default, CIPHER monitors and alerts. For <strong>cloud-reviewed automatic quarantine</strong>, every condition below must hold. Quarantine means blocking that device at the router.</p>
+        <ul class="gates">
+          <li>Automatic response is enabled, and the device is not trusted.</li>
+          <li>At least two statistical signals are abnormal.</li>
+          <li>A valid review recommends blocking with a score of at least 85/100.</li>
+          <li>The incident is still open, and the policy has not changed during the review.</li>
+        </ul>
+        <p><strong>85/100 is the model’s own assessment, not a measured probability or an accuracy claim.</strong> A failed review cannot authorize this cloud response; statistical alerts remain available.</p>
+        <p>People can review incidents, mark false positives, trust devices, isolate or restore them, reset baselines and export records. Trusted devices keep generating alerts while being exempt from automatic isolation. Manual isolation is still possible.</p>
+      </div>
+      <details class="full-width">
+        <summary>Separate router protections and privacy boundaries</summary>
+        <div class="detail-body">
+          <p>The router also has local heuristics, including flagged-event volume and TCP reset/SYN ratios. Their automatic device isolation respects enforcement mode and trust, but does not require an AI review. Existing protocol, IP and DNS packet filters are separate: <strong>monitor mode does not disable them or remove existing blocks.</strong></p>
+          <p>CIPHER does not decrypt HTTPS or send message bodies to the reviewer. The kernel does parse headers and selected DNS fields for filtering. Report metadata can include device identifiers; it should not be treated as anonymous.</p>
+          <p>Provider adapters support Anthropic and OpenAI-compatible endpoints. The default offline demo uses a labeled scripted reviewer. A real provider or local model requires separate configuration and connection testing.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="section" id="demo" aria-labelledby="demo-title">
+      <div class="split demo-heading">
+        <div><p class="eyebrow">See the software</p><h2 id="demo-title">An alert you can inspect.</h2></div>
+        <p>The recorded walkthrough uses a <strong>real backend, simulated sensor and scripted offline reviewer</strong>. It demonstrates software behavior; it does not block real packets.</p>
+      </div>
+      <figure>
+        <video controls preload="none" playsinline poster="assets/incident.png" aria-label="CIPHER software demonstration, silent recording" aria-describedby="demo-description">
+          <source src="assets/CIPHER_demo.mp4" type="video/mp4">
+          <p><a href="assets/CIPHER_demo.mp4">Download the recorded demonstration.</a></p>
+        </video>
+        <figcaption id="demo-description">Recorded demo · 1 minute 18 seconds · no audio. The text walkthrough below describes the flow.</figcaption>
+      </figure>
+      <details>
+        <summary>Read the demonstration walkthrough</summary>
+        <div class="detail-body">
+          <p><strong>Start with normal activity.</strong> The dashboard shows a device and its learned baseline. The default response mode is monitoring.</p>
+          <p><strong>Introduce unusual traffic.</strong> A simulated scan changes several measurements. An incident shows the evidence and a plain-language explanation. In monitor mode, the device stays connected.</p>
+          <p><strong>Enable automatic response.</strong> Repeat the scenario. The server requests isolation when the gate passes; the dashboard waits for the simulated sensor’s acknowledgment.</p>
+          <p><strong>Trust and recovery.</strong> Trusting the device preserves alerts and exempts it from automatic isolation. A reviewer failure leaves statistical alerts available without authorizing a cloud block. Reset prepares the next demonstration.</p>
+          <p>For the full presenter-led sequence, run <code>python3 scripts/booth.py tour</code> after starting the demo. See the <a href="https://github.com/Fleptor/ieee-cs-tech-project/blob/cipher/booth-readiness/docs/DEMO_GUIDE.md">demo guide</a>.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="section split" id="status" aria-labelledby="status-title">
+      <div><p class="eyebrow">Current state</p><h2 id="status-title">A prototype with<br>work left to prove.</h2></div>
+      <div class="prose">
+        <h3>Implemented and rehearsed</h3>
+        <p>Statistical alerts, saved baselines, trust controls, incident review, command acknowledgments and reconnect/retry flows. The repository includes integration checks and fixture-based provider tests.</p>
+        <h3>Next validation</h3>
+        <p>Physical gateway visibility, actual XDP packet blocking, accurate traffic attribution, live model configuration and recovery on real hardware. A sensor map acknowledgment alone is not proof that packets were blocked.</p>
+        <p>Detection accuracy and performance have not been established. The proposed comparison is <strong>firewall alone → firewall plus statistics → firewall plus AI review</strong>, measuring missed threats, false blocks, resource use, latency and operator effort.</p>
+        <p>Per-sensor credentials and stronger device identity are also future work. <a href="https://github.com/Fleptor/ieee-cs-tech-project/blob/cipher/booth-readiness/docs/BOOTH_READINESS.md">Read the readiness audit</a>.</p>
+      </div>
+    </section>
+
+    <section class="section" id="resources" aria-labelledby="resources-title">
+      <p class="eyebrow">Take a closer look</p>
+      <h2 id="resources-title">Start with one layer.</h2>
+      <p class="section-intro">New to computer science? Follow one report from the router to the dashboard. Pick the part that interests you: networking, Linux, Rust, statistics, testing or interface design.</p>
+      <ul class="resources">
+        <li><a href="assets/CIPHER_Startup_Alley_Pitch.pdf">Read the slides <span>PDF · 10 slides</span></a></li>
+        <li><a href="assets/CIPHER_Startup_Alley_Pitch.pptx" download>Edit the presentation <span>PowerPoint · with speaker notes</span></a></li>
+        <li><a href="assets/CIPHER_Presenter_Notes.txt">Read the presenter notes <span>Plain text · technical detail and narration</span></a></li>
+        <li><a href="https://github.com/Fleptor/ieee-cs-tech-project/tree/cipher/booth-readiness">Explore the source <span>GitHub · CIPHER demo branch</span></a></li>
+        <li><a href="https://github.com/Fleptor/ieee-cs-tech-project/blob/cipher/booth-readiness/docs/SETUP.md">Run the local demo <span>Setup guide · Linux</span></a></li>
+      </ul>
+      <p class="closing">Built by <strong>The Four Horsemen</strong> for the IEEE Computer Society. The next step is gateway testing, security review and feedback from small-office design partners.</p>
+    </section>
+  </main>
+
+  <footer class="wrap site-footer"><p>CIPHER · Student network security project</p><div><a href="https://belalhamdan.com/en/fp/">More projects</a><a href="#top">Back to top ↑</a></div></footer>
+</body>
+</html>

@@ -1,0 +1,133 @@
+CIPHER — 10-slide student introduction
+Suggested pace: 8–10 minutes, plus optional demo.
+
+SLIDE 1: CIPHER
+================================================================
+SAY
+Imagine a small office with laptops, cameras and a router, but no security team. CIPHER learns a routine for each device and highlights changes worth investigating. Today we will follow one laptop from normal activity to an alert.
+
+TECHNICAL DETAIL / QUESTIONS
+This is an experimental network detection and response system for small networks, designed to complement an established firewall. It is not a proven replacement for a mature firewall or intrusion prevention system. No measured accuracy, latency, throughput or production-readiness claims are made. Target users are small offices, shops and similar organizations; customer demand and willingness to pay remain hypotheses.
+
+REPOSITORY SOURCES
+README.md
+docs/BOOTH_READINESS.md
+
+SLIDE 2: An allowed connection can still look unusual.
+================================================================
+SAY
+A port is a numbered endpoint used by a network service. A scan tries many of them, like trying door handles. That change can deserve attention, even when traffic is permitted by the existing firewall. An administrator doing a legitimate scan can look unusual too.
+
+TECHNICAL DETAIL / QUESTIONS
+This is an illustrative scenario, not proof of attack detection. Firewalls can already include sophisticated security features. CIPHER adds a per-device behavioral experiment; port or IP filtering alone is not novel. Encrypted legitimate and malicious transfers may share similar metadata. CIPHER does not decrypt HTTPS or establish an attacker's intent.
+
+REPOSITORY SOURCES
+Server/src/ai.rs
+Router/ebpf/src/kernel_space.c
+
+SLIDE 3: Small summaries travel. Packets stay at the router.
+================================================================
+SAY
+The kernel is the core of Linux. eBPF lets it run small verified programs; XDP is the network receive hook we use. A Rust background program summarizes observations and sends them securely to a Rust server. The dashboard is the operator's view. The AI is not consulted for every packet.
+
+TECHNICAL DETAIL / QUESTIONS
+The current loader uses generic/SKB XDP. The sensor aggregates ring-buffer events, including diagnostic flags; HyperLogLog estimates distinct addresses. FlatBuffers is the binary report format; TLS WebSockets provide encrypted transport. The Axum server stores state in SQLite. Baselines, trust, local blocks and a bounded outbox persist across restarts. Reports and commands have acknowledgments and retries. The outbox holds at most 10,000 reports; old entries can be dropped. Deduplication is not exactly-once delivery: a crash between ingestion and receipt storage can duplicate a report. Reports older than 60 seconds are stored without driving current cloud isolation. A map-update acknowledgment does not prove packet-level blocking on hardware.
+
+REPOSITORY SOURCES
+Router/daemon/src/main.rs
+Router/daemon/src/network.rs
+Server/src/router_socket.rs
+router.fbs
+
+SLIDE 4: Four signals describe a device’s routine.
+================================================================
+SAY
+A camera and a laptop need different baselines. We measure traffic size, blocked observations and how varied the ports are. Entropy here means how spread out port use is; it is not simply the number of ports. These four signals feed the server's statistical detector.
+
+TECHNICAL DETAIL / QUESTIONS
+Feature order in Server/src/ai.rs: observed_bytes_in, observed_bytes_out, observed_drops, port_entropy. The default single-interface ingress mapping does not yet provide complete bidirectional gateway attribution. Sampled packet events and payload-byte counters must not be presented as connection counts or exact throughput. Reports contain metadata, not message bodies; the kernel nevertheless parses headers and selected DNS fields for filtering. The AI receives structured evidence and recent report context, which can include device identifiers. Avoid saying the system reads no packet fields or that metadata is anonymous.
+
+REPOSITORY SOURCES
+Server/src/ai.rs
+Server/src/router_socket.rs
+Router/daemon/src/main.rs
+Router/ebpf/src/kernel_space.c
+
+SLIDE 5: Learn “normal”, then measure the difference.
+================================================================
+SAY
+The first fifty reports teach CIPHER a baseline. Afterwards it asks how far a new value is from that routine. It compares the distance to normal variation, so a naturally busy device is not judged like a quiet one. Above three on any signal creates an anomaly, subject to the alert cooldown.
+
+TECHNICAL DETAIL / QUESTIONS
+Exact implementation: score_i = abs(value_i - mean_i) / max(std_dev_i, floor_i, abs(mean_i)*0.1). Floors are [4096 bytes, 4096 bytes, 5 dropped events, 0.25 entropy units]. The baseline uses population standard deviation across 50 reports. This is a stabilized deviation score, not an unmodified textbook z-score or a guaranteed probability. Means and deviations are persisted and remain fixed until reset; the first 50 reports should be representative. Example: 10 KiB mean, 34 KiB observation, standard deviation below 4 KiB: effective scale 4 KiB, score 6. Any score strictly greater than 3 is a signal; two signals are needed for cloud automatic isolation. Default per-device alert/review cooldown is 120 seconds. Training data and thresholds require real-world evaluation.
+
+REPOSITORY SOURCES
+Server/src/ai.rs: NetworkBaseline::observe
+Server/src/router_socket.rs
+
+SLIDE 6: Statistics raise the flag. AI adds an explanation.
+================================================================
+SAY
+A language model is a reviewer of the evidence. It can explain possible causes, but it does not prove that an attack happened. Its answer is checked before the response policy can use it. If the reviewer fails, statistical alerts remain available.
+
+TECHNICAL DETAIL / QUESTIONS
+Adapters support Anthropic and OpenAI-compatible chat endpoints, including an appropriately configured local server. Expected verdict fields are threat_name, confidence, human_explanation and should_block. JSON is validated; invalid or unavailable reviews cannot authorize cloud isolation. The model's 0–100 score is self-reported and uncalibrated. The default offline demonstration uses a labeled deterministic fixture, not a language model; real provider availability must be verified separately. The value of model review versus statistics alone remains unmeasured. No payload bodies are sent in the review evidence, but metadata may still be sensitive.
+
+REPOSITORY SOURCES
+Server/src/ai.rs: Supervisor
+scripts/demo_supervisor.py
+docs/LLM_SETUP.md
+
+SLIDE 7: Automatic quarantine needs every gate to pass.
+================================================================
+SAY
+Quarantine means blocking one device at the router. The cloud path needs all four conditions shown here, not just the AI's vote. The sensor checks the policy again when applying an automatic command. The dashboard distinguishes a request from an acknowledged response. A person can restore the device.
+
+TECHNICAL DETAIL / QUESTIONS
+This gate describes CLOUD-reviewed automatic isolation only. The edge also has local heuristics (for example, flagged-event volume and TCP reset/SYN ratios), gated by enforcement mode and trust but without an LLM requirement. Existing protocol, IP and DNS packet filters are separate: monitor mode does not disable them or remove existing blocks. Trusted devices still generate alerts and are exempt from automatic cloud/edge isolation; explicitly requested manual isolation remains possible. Granting trust queues restoration of an existing MAC block. Review failure prevents this cloud decision from automatically isolating, but does not disable independent edge protections. Sensor acknowledgment proves its map update, not actual packet blocking in a validated gateway.
+
+REPOSITORY SOURCES
+Server/src/router_socket.rs: apply_review
+Server/src/policy.rs
+Router/daemon/src/main.rs
+Router/daemon/src/network.rs
+
+SLIDE 8: Follow one laptop from alert to response.
+================================================================
+SAY
+Show the actual dashboard, not these slides, for this part. Start with an alert in monitor mode, open its evidence, then demonstrate the response acknowledgment. Trust the device and show that alerts remain. Finally show a failed review and restore the next-visitor state.
+
+TECHNICAL DETAIL / QUESTIONS
+From the repository root: bash setup.sh --demo; python3 scripts/booth.py doctor; python3 scripts/booth.py start. In a second terminal run python3 scripts/booth.py tour. Open https://localhost:3100 and use the disposable operator credentials printed by the runner. The deterministic supervisor is explicitly labeled DEMO. Use docs/demo/CIPHER_demo.mp4 if live presentation fails. Manual hooks and rehearsal assertions are documented in docs/DEMO_GUIDE.md. The software rehearsal exercises alerts, trust, response modes, command failures, provider errors and recovery; it does not establish hardware enforcement or detection accuracy.
+
+REPOSITORY SOURCES
+docs/DEMO_GUIDE.md
+docs/demo/README.md
+scripts/booth.py
+
+SLIDE 9: A working software demo. Hardware proof comes next.
+================================================================
+SAY
+We can demonstrate the software behavior. The next step is to verify the real gateway: are we seeing the right traffic, and do the response commands really block it? After that, we can measure whether this approach helps more than it disrupts.
+
+TECHNICAL DETAIL / QUESTIONS
+The repository's readiness audit reports builds, integration checks, fixture-based provider tests, eBPF compilation and real daemon transport reconnect tests. These are earlier engineering checks, not new hardware tests performed for this presentation. Physical XDP attachment/enforcement, full bidirectional attribution, live provider/account availability, attack accuracy and performance need separate validation. Compare the same hardware with firewall alone, firewall plus statistics, and firewall plus model review. Measure missed threats, false blocks per device-day, CPU/RAM, throughput, tail latency, failure recovery, model cost and operator effort. Telemetry retention is 24 hours; dashboard history is capped at 5,000 reports and exports at 10,000. Shared sensor secrets and MAC-based identity need hardening before broader deployment.
+
+REPOSITORY SOURCES
+docs/BOOTH_READINESS.md
+README.md
+tests/integration.py
+tests/supervisor.py
+
+SLIDE 10: You can understand the system one layer at a time.
+================================================================
+SAY
+You do not need to know every technology to start. Choose one layer and follow one report. The website has the slides, a recorded demo, the source and setup instructions. We welcome technical feedback on the gateway and on how to explain the evidence clearly.
+
+TECHNICAL DETAIL / QUESTIONS
+The Four Horsemen is the project team. Networks, eBPF, Rust, statistical analysis and interface work describe technical domains, not invented specialist credentials. The practical ask is for infrastructure/security review, hardware testing feedback and small-office design partners after validation. No partnership, hiring offer, customer commitment or immediate live deployment is promised. Suggested first-year exercise: explain why a port scan is only a hypothesis, then identify which isolation gates would prevent a false block. A useful discussion question: what benign activity could also produce an alert?
+
+REPOSITORY SOURCES
+README.md
+docs/CIPHER_EXPLAINED.md
+docs/DEMO_GUIDE.md

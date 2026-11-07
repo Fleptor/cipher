@@ -6,6 +6,7 @@ CIPHER collects eBPF/XDP metadata with a Rust sensor, sends acknowledged FlatBuf
 
 ## Start here
 
+- **[CIPHER project website](https://belalhamdan.com/ieee-cs-tech-project/)**: a one-page introduction, recorded demo and ten-slide student presentation
 - **[Setup: fresh laptop to working AI reviewer](docs/SETUP.md)**: one guide, start to finish
 - [CIPHER in plain English: openers, analogy, visitor Q&A](docs/CIPHER_EXPLAINED.md)
 - [Showcase page with the interactive quarantine gate](docs/showcase/index.html) (open in a browser)
@@ -13,7 +14,7 @@ CIPHER collects eBPF/XDP metadata with a Rust sensor, sends acknowledged FlatBuf
 - [LLM setup: Anthropic, OpenAI-compatible endpoints and verification](docs/LLM_SETUP.md)
 - [Booth and physical-sensor setup, scenario hooks and recovery](docs/BOOTH_RUNBOOK.md)
 - [Readiness audit, delivered features and remaining limits](docs/BOOTH_READINESS.md)
-- [Updated Startup Alley slides](docs/presentation/README.md)
+- [Ten-slide student presentation and technical speaker notes](docs/presentation/README.md)
 - [Earlier dashboard integration review](docs/UI_INTEGRATION.md)
 
 From the repository root:

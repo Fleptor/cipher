@@ -1,346 +1,213 @@
 #!/usr/bin/env python3
-"""Generate the finalized, 12-slide Project CIPHER Startup Alley pitch.
+"""Build CIPHER's editable, ten-slide introduction and a plain-text presenter guide.
 
-Install: python3 -m pip install python-pptx
-Run:     python3 generate_pitch.py
-
-The output is saved beside this script (the workspace root), independently of
-the caller's working directory. No templates, images, network, or project files
-are required at runtime. All artwork is editable PowerPoint geometry.
-
-Evidence policy: architecture is grounded in the supplied repository and PDFs;
-the deck makes no unverified latency or detection-accuracy promises. Physical
-deployment is team-reported; integration gaps and pilot validation are explicit.
-The product proposition complements an existing firewall. Speaker notes retain
-sources, limitations, and the distinction between current and proposed behavior.
+Requires python-pptx. Run from any directory. Export the PPTX to PDF with
+LibreOffice (see README.md). All diagrams are editable PowerPoint shapes.
 """
-
 from pathlib import Path
 
-try:
-    from pptx import Presentation
-    from pptx.dml.color import RGBColor
-    from pptx.enum.shapes import MSO_SHAPE, MSO_CONNECTOR
-    from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
-    from pptx.oxml.xmlchemy import OxmlElement
-    from pptx.util import Inches, Pt
-except ImportError as exc:
-    raise SystemExit(
-        "Missing dependency. Run: python3 -m pip install python-pptx"
-    ) from exc
+from pptx import Presentation
+from pptx.dml.color import RGBColor
+from pptx.enum.shapes import MSO_CONNECTOR, MSO_SHAPE
+from pptx.enum.text import PP_ALIGN
+from pptx.oxml.xmlchemy import OxmlElement
+from pptx.util import Inches, Pt
+
+ROOT = Path(__file__).resolve().parent
+INK, TEAL, MUTED, LINE, PALE = "172D30", "155759", "495D60", "BBCBCB", "EFF5F4"
+SERIF, BODY, MONO = "Georgia", "Verdana", "DejaVu Sans Mono"
+SITE = "https://belalhamdan.com/ieee-cs-tech-project/"
+GUIDE = []
 
 
-OUTPUT = Path(__file__).resolve().parent / "CIPHER_Startup_Alley_Pitch.pptx"
-WIDTH, HEIGHT = 13.333333, 7.5
-BG = "081321"
-PANEL = "102237"
-LINE = "294359"
-WHITE = "F3F7FC"
-MUTED = "AFC1D3"
-TEAL = "54E1C1"
-BLUE = "73B9FF"
-AMBER = "FFBE73"
-FONT = "Noto Sans"
-MONO = "JetBrains Mono"
-
-DOC = "Documents/Project_CIPHER_full_documentation.pdf"
-OUTLINE = "Documents/General Outline - The Four Horsemen.pdf"
-KERNEL = "ieee-cs-tech-project/Router/ebpf/src/kernel_space.c"
-DEFS = "ieee-cs-tech-project/Router/ebpf/src/shared_defs.h"
-DAEMON = "ieee-cs-tech-project/Router/daemon/src/main.rs"
-AI = "ieee-cs-tech-project/Server/src/ai.rs"
-SERVER = "ieee-cs-tech-project/Server/src/main.rs"
-HANDLERS = "ieee-cs-tech-project/Server/src/handlers.rs"
-
-
-def color(value):
-    return RGBColor.from_string(value)
-
-
-def rect(slide, x, y, w, h, fill=PANEL, stroke=None, radius=False):
-    kind = MSO_SHAPE.ROUNDED_RECTANGLE if radius else MSO_SHAPE.RECTANGLE
-    shape = slide.shapes.add_shape(kind, Inches(x), Inches(y), Inches(w), Inches(h))
-    shape.fill.solid()
-    shape.fill.fore_color.rgb = color(fill)
-    if stroke:
-        shape.line.color.rgb = color(stroke)
-        shape.line.width = Pt(1)
-    else:
-        shape.line.fill.background()
-    if radius:
-        shape.adjustments[0] = 0.08
-    return shape
-
-
-def line(slide, x1, y1, x2, y2, tint=LINE, width=1.5):
-    shape = slide.shapes.add_connector(
-        MSO_CONNECTOR.STRAIGHT, Inches(x1), Inches(y1), Inches(x2), Inches(y2)
-    )
-    shape.line.color.rgb = color(tint)
-    shape.line.width = Pt(width)
-    return shape
-
-
-def text(slide, value, x, y, w, h, size=24, tint=WHITE, bold=False,
-         align=PP_ALIGN.LEFT, font=FONT, shape=None):
-    if shape is None:
-        shape = slide.shapes.add_textbox(Inches(x), Inches(y), Inches(w), Inches(h))
-    else:
-        shape.left, shape.top = Inches(x), Inches(y)
-        shape.width, shape.height = Inches(w), Inches(h)
-    tf = shape.text_frame
-    tf.clear()
-    tf.word_wrap = True
-    tf.margin_left = tf.margin_right = 0
-    tf.margin_top = tf.margin_bottom = 0
-    tf.vertical_anchor = MSO_ANCHOR.TOP
+def text(slide, value, x, y, w, h, size=24, color=INK, bold=False, font=BODY, shape=None):
+    shape = shape if shape is not None else slide.shapes.add_textbox(Inches(x), Inches(y), Inches(w), Inches(h))
+    shape.left, shape.top, shape.width, shape.height = map(Inches, (x, y, w, h))
+    frame = shape.text_frame
+    frame.clear()
+    frame.word_wrap = True
+    frame.margin_left = frame.margin_right = frame.margin_top = frame.margin_bottom = 0
     for i, row in enumerate(value.split("\n")):
-        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+        p = frame.paragraphs[0] if i == 0 else frame.add_paragraph()
         p.text = row
-        p.alignment = align
-        p.font.name = font
-        p.font.size = Pt(size)
-        p.font.bold = bold
-        p.font.color.rgb = color(tint)
-        p.space_after = Pt(0)
-        p.line_spacing = 1.12
-        # Override inherited title/body bullets from the standard layouts.
+        p.alignment = PP_ALIGN.LEFT
+        p.font.name, p.font.size, p.font.bold = font, Pt(size), bold
+        p.font.color.rgb = RGBColor.from_string(color)
+        p.space_after, p.line_spacing = Pt(4), 1.12
         p._p.get_or_add_pPr().append(OxmlElement("a:buNone"))
     return shape
 
 
-def bullets(slide, items, x, y, w, size=23, step=0.8, tint=WHITE):
-    """Use real editable bullet paragraphs, one deliberately short item per box."""
-    for i, item in enumerate(items):
-        shape = text(slide, item, x, y + i * step, w, step - 0.09, size, tint)
-        p = shape.text_frame.paragraphs[0]
-        props = p._p.get_or_add_pPr()
-        props.remove(props.find("{http://schemas.openxmlformats.org/drawingml/2006/main}buNone"))
-        props.set("marL", str(Inches(0.23)))
-        props.set("indent", str(-Inches(0.23)))
-        bullet = OxmlElement("a:buChar")
-        bullet.set("char", "•")
-        props.append(bullet)
+def line(s, x1, y1, x2, y2, color=LINE, width=1):
+    sh = s.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, Inches(x1), Inches(y1), Inches(x2), Inches(y2))
+    sh.line.color.rgb, sh.line.width = RGBColor.from_string(color), Pt(width)
+    sh._element.spPr.append(OxmlElement("a:effectLst"))
 
 
-def tag(slide, value, x, y, w, tint=TEAL):
-    rect(slide, x, y, w, 0.36, PANEL, LINE, radius=True)
-    text(slide, value, x + 0.10, y + 0.06, w - 0.20, 0.23, 10, tint, True)
+def box(s, x, y, w, h, fill=PALE):
+    sh = s.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(x), Inches(y), Inches(w), Inches(h))
+    sh.fill.solid()
+    sh.fill.fore_color.rgb = RGBColor.from_string(fill)
+    sh.line.fill.background()
+    sh._element.spPr.append(OxmlElement("a:effectLst"))
+    return sh
 
 
-def notes(slide, narrative, sources):
-    slide.notes_slide.notes_text_frame.text = (
-        narrative.strip() + "\n\nSOURCES / EVIDENCE\n" + "\n".join(sources)
-    )
+def base(prs, section, title):
+    s = prs.slides.add_slide(prs.slide_layouts[5])
+    s.background.fill.solid()
+    s.background.fill.fore_color.rgb = RGBColor(255, 255, 255)
+    text(s, title, .65, 1.02, 12.0, 1.2, 35, font=SERIF, shape=s.shapes.title)
+    text(s, section.upper(), .68, .46, 11.7, .28, 12, TEAL, True)
+    line(s, .67, 6.92, 12.65, 6.92)
+    text(s, "CIPHER · IEEE Computer Society · The Four Horsemen", .68, 7.08, 10.5, .22, 10, MUTED)
+    text(s, f"{len(prs.slides)} / 10", 11.8, 7.06, .85, .26, 11, MUTED)
+    return s
 
 
-def base(prs, section, title, layout=1):
-    slide = prs.slides.add_slide(prs.slide_layouts[layout])
-    slide.background.fill.solid()
-    slide.background.fill.fore_color.rgb = color(BG)
-    title_shape = slide.shapes.title
-    # Keep the actual Title placeholder; remove unused content placeholders.
-    for placeholder in list(slide.placeholders):
-        if placeholder != title_shape:
-            placeholder._element.getparent().remove(placeholder._element)
-    rect(slide, 0.55, 0.48, 0.10, 0.20, TEAL)
-    text(slide, section.upper(), 0.78, 0.47, 11.7, 0.25, 11, TEAL, True)
-    text(slide, title, 0.75, 1.02, 11.8, 1.30, 34, bold=True, shape=title_shape)
-    line(slide, 0.75, 6.96, 12.58, 6.96)
-    text(slide, "CIPHER  /  STARTUP ALLEY", 0.75, 7.12, 7, 0.20, 9, MUTED)
-    text(slide, f"{len(prs.slides):02d} / 12", 11.55, 7.10, 1.03, 0.23,
-         10, MUTED, align=PP_ALIGN.RIGHT, font=MONO)
-    return slide
+def note(s, say, detail, sources):
+    title = s.shapes.title.text
+    value = f"SAY\n{say}\n\nTECHNICAL DETAIL / QUESTIONS\n{detail}\n\nREPOSITORY SOURCES\n" + "\n".join(sources)
+    s.notes_slide.notes_text_frame.text = value
+    GUIDE.append(f"SLIDE {len(GUIDE)+1}: {title}\n{'=' * 64}\n{value}\n")
 
 
-def card(slide, x, y, w, h, heading, body, accent=TEAL, number=None):
-    rect(slide, x, y, w, h, PANEL, LINE, radius=True)
-    rect(slide, x, y + 0.25, 0.04, h - 0.5, accent)
-    if number:
-        text(slide, number, x + 0.24, y + 0.25, w - 0.48, 0.60,
-             30, accent, True, font=MONO)
-    offset = 1.05 if number else 0.35
-    text(slide, heading, x + 0.25, y + offset, w - 0.50, 0.85, 22, accent, True)
-    bullets(slide, body, x + 0.25, y + offset + 1.03, w - 0.50, size=19, step=0.8)
-
-
-def arrow(slide, x, y, tint=TEAL):
-    shape = slide.shapes.add_shape(MSO_SHAPE.CHEVRON,
-                                   Inches(x), Inches(y), Inches(0.28), Inches(0.38))
-    shape.fill.solid()
-    shape.fill.fore_color.rgb = color(tint)
-    shape.line.fill.background()
+def row(s, y, heading, body, heading_w=3.0, size=22):
+    line(s, .7, y-.16, 12.6, y-.16)
+    text(s, heading, .72, y, heading_w, .75, size, TEAL, True)
+    text(s, body, heading_w+1.0, y, 11.55-heading_w, .82, size)
 
 
 def build_deck():
-    prs = Presentation()
-    prs.slide_width, prs.slide_height = Inches(WIDTH), Inches(HEIGHT)
-    prs.core_properties.title = "Project CIPHER | Startup Alley"
-    prs.core_properties.subject = "Experimental behavioral protection alongside existing firewalls"
-    prs.core_properties.author = "The 4 Horsemen"
-    prs.core_properties.keywords = "CIPHER, Startup Alley, eBPF, XDP, Rust, SOHO, prototype"
-    prs.core_properties.comments = "12-slide booth pitch: rehearsed software flows, explicit simulation and remaining live validation."
+    GUIDE.clear()
+    p = Presentation()
+    p.slide_width, p.slide_height = Inches(13.333333), Inches(7.5)
+    p.core_properties.title = "CIPHER — A first look at network security"
+    p.core_properties.author = "The Four Horsemen / IEEE Computer Society"
+    p.core_properties.subject = "Ten-slide student introduction with technical speaker notes"
+    p.core_properties.keywords = "CIPHER, eBPF, XDP, Rust, network security, first year"
 
-    nft = "https://netfilter.org/projects/nftables/manpage.html"
-    suricata = "https://docs.suricata.io/en/suricata-8.0.0/capture-hardware/ebpf-xdp.html"
-    opnsense = "https://docs.opnsense.org/manual/ips.html"
-    faq = "CIPHER_Technical_FAQ.md"
+    s = base(p, "A first look at network security", "CIPHER")
+    text(s, "CIPHER", .68, 1.5, 11.8, 1.15, 65, TEAL, font=SERIF, shape=s.shapes.title)
+    text(s, "Notice when a device\nbreaks its routine.", .72, 3.0, 10.8, 1.6, 39, font=SERIF)
+    text(s, "Learn normal activity. Explain unusual behavior.\nLet the operator decide how to respond.", .76, 5.05, 11.6, 1.0, 24)
+    note(s, "Imagine a small office with laptops, cameras and a router, but no security team. CIPHER learns a routine for each device and highlights changes worth investigating. Today we will follow one laptop from normal activity to an alert.",
+         "This is an experimental network detection and response system for small networks, designed to complement an established firewall. It is not a proven replacement for a mature firewall or intrusion prevention system. No measured accuracy, latency, throughput or production-readiness claims are made. Target users are small offices, shops and similar organizations; customer demand and willingness to pay remain hypotheses.",
+         ["README.md", "docs/BOOTH_READINESS.md"])
 
-    # 01 — A narrow, defensible product proposition.
-    s = base(prs, "Network security / Prototype", "Project CIPHER", layout=0)
-    text(s, "Project CIPHER", 0.75, 2.1, 8.6, 1.0, 48, bold=True, shape=s.shapes.title)
-    text(s, "Behavioral protection for small networks", 0.78, 3.32, 8.4, 0.90, 27, MUTED)
-    text(s, "Designed to complement an existing firewall", 0.78, 4.46, 8.4, 0.85, 20, TEAL)
-    tag(s, "THE 4 HORSEMEN", 0.78, 5.57, 2.05)
-    for i in range(5):
-        yy = 2.40 + i * 0.60
-        line(s, 9.50, yy, 10.15, yy, BLUE)
-        line(s, 11.87, yy, 12.55, yy, BLUE)
-        rect(s, 9.39, yy - 0.055, 0.11, 0.11, TEAL)
-        rect(s, 12.55, yy - 0.055, 0.11, 0.11, TEAL)
-    rect(s, 10.15, 2.04, 1.72, 3.16, PANEL, TEAL, radius=True)
-    text(s, "C", 10.44, 2.78, 1.18, 1.10, 64, TEAL, True, PP_ALIGN.CENTER, MONO)
-    text(s, "eBPF / XDP", 10.32, 4.27, 1.38, 0.35, 11, MUTED, align=PP_ALIGN.CENTER)
-    notes(s, "CIPHER is a systems prototype exploring behavioral network protection for small offices and homes. The revised proposition is an additional analysis/enforcement layer alongside an established firewall, not a replacement for a mature stateful firewall or a proven enterprise IPS. The desired outcome is useful additional protection with manageable resource use and false blocks. No measured performance, accuracy, or commercial-readiness claim is made.", [DOC, KERNEL, DAEMON, AI, faq, "User-requested independent critique and pitch revision."])
+    s = base(p, "The problem", "An allowed connection can still look unusual.")
+    text(s, "The laptop’s routine", .75, 2.5, 5.65, .5, 26, TEAL, True)
+    text(s, "A few familiar services.\nA familiar amount of traffic.", .75, 3.3, 5.55, 1.6, 26)
+    line(s, 6.6, 2.5, 6.6, 5.5)
+    text(s, "A sudden change", 7.05, 2.5, 5.5, .5, 26, TEAL, True)
+    text(s, "Many different service ports.\nMore rejected traffic.", 7.05, 3.3, 5.5, 1.6, 26)
+    text(s, "A port is a service’s “door”. Trying many doors can be a scan.", .75, 5.65, 11.9, .5, 21)
+    text(s, "Unusual does not automatically mean malicious.", .75, 6.3, 11.9, .45, 22, TEAL, True)
+    note(s, "A port is a numbered endpoint used by a network service. A scan tries many of them, like trying door handles. That change can deserve attention, even when traffic is permitted by the existing firewall. An administrator doing a legitimate scan can look unusual too.",
+         "This is an illustrative scenario, not proof of attack detection. Firewalls can already include sophisticated security features. CIPHER adds a per-device behavioral experiment; port or IP filtering alone is not novel. Encrypted legitimate and malicious transfers may share similar metadata. CIPHER does not decrypt HTTPS or establish an attacker's intent.",
+         ["Server/src/ai.rs", "Router/ebpf/src/kernel_space.c"])
 
-    # 02 — Explain the gap without disparaging existing firewalls.
-    s = base(prs, "02 / The problem", "Allowed traffic can still be harmful.")
-    card(s, 0.75, 2.65, 5.63, 3.40, "LEGITIMATE ACTIVITY", ["A camera uploads a backup"], TEAL)
-    card(s, 6.95, 2.65, 5.63, 3.40, "COMPROMISED DEVICE", ["A camera uploads stolen data"], AMBER)
-    text(s, "Both may use allowed HTTPS. Context matters.", 0.80, 6.34, 11.8, 0.44, 22, MUTED)
-    notes(s, "Illustrative scenario, not a successful detection claim. A firewall configured to permit a device's outbound HTTPS may allow both legitimate and malicious transfers. Metadata-based behavior analysis could add a signal, but these transfers can also look alike. The current four-feature detector and LLM are not proven to distinguish them. Do not claim that all firewalls lack advanced analytics, or that CIPHER decrypts HTTPS. The unmet need to validate is understandable, actionable device-level anomaly reporting with few disruptions.", [KERNEL, AI, nft, "Illustrative customer scenario; not a measured result."])
+    s = base(p, "Architecture", "Small summaries travel. Packets stay at the router.")
+    entries = [("Linux router", "eBPF / XDP\nTraffic hook"), ("Rust sensor", "Summarize\nmetadata"), ("Rust server", "Statistics\n+ AI review"), ("Dashboard", "Review\n+ respond")]
+    for i, (head, body) in enumerate(entries):
+        x = .75+i*3.05
+        box(s, x, 2.65, 2.65, 2.55)
+        text(s, head, x+.16, 2.92, 2.33, .7, 23, TEAL, True)
+        text(s, body, x+.16, 3.95, 2.33, 1.1, 20)
+        if i<3:
+            text(s, "→", x+2.71, 3.65, .34, .5, 23)
+    text(s, "Sensor → server: FlatBuffers reports over a TLS WebSocket", .8, 5.65, 11.9, .5, 22)
+    text(s, "Response returns to the sensor; the dashboard waits for acknowledgment.", .8, 6.3, 11.8, .45, 20)
+    note(s, "The kernel is the core of Linux. eBPF lets it run small verified programs; XDP is the network receive hook we use. A Rust background program summarizes observations and sends them securely to a Rust server. The dashboard is the operator's view. The AI is not consulted for every packet.",
+         "The current loader uses generic/SKB XDP. The sensor aggregates ring-buffer events, including diagnostic flags; HyperLogLog estimates distinct addresses. FlatBuffers is the binary report format; TLS WebSockets provide encrypted transport. The Axum server stores state in SQLite. Baselines, trust, local blocks and a bounded outbox persist across restarts. Reports and commands have acknowledgments and retries. The outbox holds at most 10,000 reports; old entries can be dropped. Deduplication is not exactly-once delivery: a crash between ingestion and receipt storage can duplicate a report. Reports older than 60 seconds are stored without driving current cloud isolation. A map-update acknowledgment does not prove packet-level blocking on hardware.",
+         ["Router/daemon/src/main.rs", "Router/daemon/src/network.rs", "Server/src/router_socket.rs", "router.fbs"])
 
-    # 03 — Proposed deployment, explicitly separate from current implementation.
-    s = base(prs, "03 / Product approach", "Add behavioral signals to existing protection.")
-    tag(s, "PROPOSED DEPLOYMENT", 0.80, 2.43, 2.82)
-    card(s, 0.75, 3.04, 3.60, 2.90, "Existing firewall", ["Baseline access policy"], BLUE)
-    arrow(s, 4.45, 4.14, BLUE)
-    card(s, 4.86, 3.04, 3.60, 2.90, "CIPHER", ["Device-level anomalies"], TEAL)
-    arrow(s, 8.57, 4.14)
-    card(s, 8.98, 3.04, 3.60, 2.90, "Operator", ["Monitor, review + trust"], AMBER)
-    notes(s, "The proposed topology complements an existing firewall. Monitor-and-alert policy, operator review and persistent device trust are implemented and exercised in the software demo. Monitor mode prevents NEW automatic device isolation; it does not remove existing blocks or disable kernel packet filters. Trust retains alerts and prevents automatic cloud/edge isolation; explicit manual isolation remains possible. Do not describe this as a passive packet tap. Arrows express responsibilities, not mandatory wiring. A real gateway rehearsal is still required before a pilot.", [KERNEL, DAEMON, HANDLERS, nft, "Proposed validation and deployment strategy following source review."])
+    s = base(p, "Traffic measurements", "Four signals describe a device’s routine.")
+    row(s, 2.45, "Incoming bytes", "How much incoming payload was observed.")
+    row(s, 3.4, "Outgoing bytes", "How much outgoing payload was observed.")
+    row(s, 4.35, "Dropped events", "How many reported packet events were blocked.")
+    row(s, 5.3, "Port entropy", "How spread out the observed port use is.")
+    text(s, "These are sampled observations, not complete traffic totals.", .75, 6.4, 11.8, .38, 20, TEAL)
+    note(s, "A camera and a laptop need different baselines. We measure traffic size, blocked observations and how varied the ports are. Entropy here means how spread out port use is; it is not simply the number of ports. These four signals feed the server's statistical detector.",
+         "Feature order in Server/src/ai.rs: observed_bytes_in, observed_bytes_out, observed_drops, port_entropy. The default single-interface ingress mapping does not yet provide complete bidirectional gateway attribution. Sampled packet events and payload-byte counters must not be presented as connection counts or exact throughput. Reports contain metadata, not message bodies; the kernel nevertheless parses headers and selected DNS fields for filtering. The AI receives structured evidence and recent report context, which can include device identifiers. Avoid saying the system reads no packet fields or that metadata is anonymous.",
+         ["Server/src/ai.rs", "Server/src/router_socket.rs", "Router/daemon/src/main.rs", "Router/ebpf/src/kernel_space.c"])
 
-    # 04 — Honest feature comparison, using an editable comparison table.
-    s = base(prs, "04 / Competitive context", "Blocking is established. Detection must add value.")
-    xs = [0.75, 4.35, 8.46]
-    ws = [3.60, 4.11, 4.12]
-    headers = ["CAPABILITY", "EXISTING TOOLS", "CIPHER TODAY"]
-    rows = [
-        ["Packet rules", "Standard firewall function", "Implemented"],
-        ["Device anomalies", "Requires added analysis", "Experimental"],
-        ["XDP acceleration", "Used by existing IPS", "Generic mode"],
-        ["Comparative advantage", "Established alternatives", "Unproven"],
-    ]
-    for x, w, label in zip(xs, ws, headers):
-        rect(s, x, 2.60, w - 0.03, 0.60, LINE)
-        text(s, label, x + 0.16, 2.77, w - 0.32, 0.26, 12, TEAL, True)
-    for i, row in enumerate(rows):
-        yy = 3.25 + i * 0.70
-        for col, (x, w, value) in enumerate(zip(xs, ws, row)):
-            rect(s, x, yy, w - 0.03, 0.65, PANEL)
-            text(s, value, x + 0.16, yy + 0.16, w - 0.32, 0.43,
-                 17, WHITE if col < 2 else AMBER, bold=(col == 0))
-    text(s, "Sources: nftables and Suricata documentation; local code review.",
-         0.80, 6.49, 11.8, 0.25, 11, MUTED)
-    notes(s, "Separate basic firewall capability from broader IPS products. nftables already provides kernel filtering, state tracking, address sets, counters and rate limits. Blocking ports, MACs, IPs or selected TCP flags is not the product's novelty. Basic firewall rules do not by themselves implement CIPHER's proposed per-device behavioral model. Suricata documents eBPF/XDP integration; OPNsense offers a Suricata-based IPS with Netmap. No head-to-head speed or security superiority is established. 'Implemented' means logic exists, not that all paths are validated. Commodity hardware and public libraries are implementation choices, not an exclusive moat. Defensibility would need to grow through reliable integration, deployment knowledge and demonstrated customer outcomes.", [nft, suricata, opnsense, KERNEL, DAEMON, AI])
+    s = base(p, "Statistical detection", "Learn “normal”, then measure the difference.")
+    text(s, "50 reports", .75, 2.45, 4.1, .8, 40, TEAL, font=SERIF)
+    text(s, "Build a baseline:\nthe usual level and variation\nfor each signal.", .8, 3.5, 4.5, 1.8, 25)
+    line(s, 5.7, 2.45, 5.7, 5.95)
+    text(s, "Deviation score", 6.2, 2.55, 6.0, .5, 25, TEAL, True)
+    text(s, "distance from the baseline\n÷ expected variation", 6.2, 3.4, 6.0, 1.3, 29, font=SERIF)
+    text(s, "Above 3 on any signal → an alert", 6.2, 5.2, 6.0, .9, 23)
+    text(s, "Example: a 24 KiB change ÷ 4 KiB scale = 6.  Illustrative values.", .8, 6.35, 11.8, .4, 20, MUTED)
+    note(s, "The first fifty reports teach CIPHER a baseline. Afterwards it asks how far a new value is from that routine. It compares the distance to normal variation, so a naturally busy device is not judged like a quiet one. Above three on any signal creates an anomaly, subject to the alert cooldown.",
+         "Exact implementation: score_i = abs(value_i - mean_i) / max(std_dev_i, floor_i, abs(mean_i)*0.1). Floors are [4096 bytes, 4096 bytes, 5 dropped events, 0.25 entropy units]. The baseline uses population standard deviation across 50 reports. This is a stabilized deviation score, not an unmodified textbook z-score or a guaranteed probability. Means and deviations are persisted and remain fixed until reset; the first 50 reports should be representative. Example: 10 KiB mean, 34 KiB observation, standard deviation below 4 KiB: effective scale 4 KiB, score 6. Any score strictly greater than 3 is a signal; two signals are needed for cloud automatic isolation. Default per-device alert/review cooldown is 120 seconds. Training data and thresholds require real-world evaluation.",
+         ["Server/src/ai.rs: NetworkBaseline::observe", "Server/src/router_socket.rs"])
 
-    # 05 — Preserve technical substance without timing promises.
-    s = base(prs, "05 / Technical architecture", "Keep packet handling separate from analysis.")
-    card(s, 0.75, 2.65, 3.60, 3.45, "eBPF / XDP", ["Kernel enforcement"], TEAL, "DATA")
-    arrow(s, 4.45, 4.03)
-    card(s, 4.86, 2.65, 3.60, 3.45, "Rust daemon", ["Metadata aggregation"], BLUE, "EDGE")
-    arrow(s, 8.57, 4.03, BLUE)
-    card(s, 8.98, 2.65, 3.60, 3.45, "Axum server", ["Statistical analysis"], BLUE, "SERVER")
-    text(s, "Generic XDP today. Throughput and latency require benchmarks.",
-         0.80, 6.49, 11.8, 0.25, 12, MUTED)
-    notes(s, "The data plane contains MAC/IP filtering, selected protocol checks, a Bloom-filter DNS drop path, and an 8-bit diagnostic mask. The Rust edge uses HyperLogLog for approximate unique-address counting and sends FlatBuffers summaries over WebSockets. The server uses Axum and SQLite WAL. These are useful engineering components, not guarantees of zero overhead, total memory bounds, or full attack coverage. HyperLogLog bounds one sketch, while other state still grows. FlatBuffers supports direct field reads, but outgoing messages are copied. The loader uses XdpMode::Skb; native-driver efficiency needs its own test. Earlier 300 ns and under-3-microsecond documentation claims are deliberately omitted from slides because no reproducible benchmark report was found. Cloud reasoning is not on every packet's critical path.", [KERNEL, DEFS, DAEMON, SERVER, AI, "ieee-cs-tech-project/router.fbs", DOC])
+    s = base(p, "The AI reviewer", "Statistics raise the flag. AI adds an explanation.")
+    row(s, 2.55, "Evidence in", "Baseline, unusual measurements and recent reports.", 2.9)
+    row(s, 3.65, "Review out", "An explanation, a block recommendation and a score.", 2.9)
+    row(s, 4.75, "Operator sees", "Why it was flagged, what happened and what to review.", 2.9)
+    text(s, "Model confidence is self-reported, not measured accuracy.", .75, 6.15, 11.8, .65, 23, TEAL, True)
+    note(s, "A language model is a reviewer of the evidence. It can explain possible causes, but it does not prove that an attack happened. Its answer is checked before the response policy can use it. If the reviewer fails, statistical alerts remain available.",
+         "Adapters support Anthropic and OpenAI-compatible chat endpoints, including an appropriately configured local server. Expected verdict fields are threat_name, confidence, human_explanation and should_block. JSON is validated; invalid or unavailable reviews cannot authorize cloud isolation. The model's 0–100 score is self-reported and uncalibrated. The default offline demonstration uses a labeled deterministic fixture, not a language model; real provider availability must be verified separately. The value of model review versus statistics alone remains unmeasured. No payload bodies are sent in the review evidence, but metadata may still be sensitive.",
+         ["Server/src/ai.rs: Supervisor", "scripts/demo_supervisor.py", "docs/LLM_SETUP.md"])
 
-    # 06 — Make the AI an experiment, not an asserted advantage.
-    s = base(prs, "06 / Detection hypothesis", "Test whether AI improves decisions.")
-    card(s, 0.75, 2.65, 5.60, 3.45, "Z-score screening", ["Four telemetry features", "Saved baseline + reset"], TEAL)
-    arrow(s, 6.52, 3.94)
-    card(s, 6.98, 2.65, 5.60, 3.45, "LLM review", ["Baseline + recent reports", "Advisory by default"], AMBER)
-    text(s, "Anthropic + compatible APIs. Offline booth uses scripted responses.",
-         0.80, 6.49, 11.8, 0.25, 12, MUTED)
-    notes(s, "Tier 1 learns from 50 reports: observed incoming/outgoing payload bytes, drops and port entropy. Baselines persist and can be reset. Variance floors prevent tiny changes after constant traffic from becoming extreme scores. The LLM now receives baseline means/deviations, reasons and recent report context, but no payload or reliable destination attribution. Anthropic and OpenAI Chat Completions-compatible adapters are implemented; fixture tests pass, but live credentials/model access are not yet verified. Default booth mode uses a clearly labeled deterministic fixture, NOT an AI model. Real LLM reviews can be enabled after connection testing. Explain the distinction before showing incidents. Automated cloud isolation requires enforcement mode, an untrusted device, an open incident, unchanged policy, two signals and at least 85/100 self-reported confidence. This is a policy guard, not measured accuracy. Compare against statistics alone before relying on model recommendations.", [AI, "ieee-cs-tech-project/docs/LLM_SETUP.md", "ieee-cs-tech-project/docs/BOOTH_READINESS.md"])
+    s = base(p, "Response policy", "Automatic quarantine needs every gate to pass.")
+    text(s, "Cloud-reviewed isolation", .75, 2.3, 11.8, .5, 24, TEAL, True)
+    gates = [("Permission", "Automatic mode is on; the device is not trusted."), ("Evidence", "At least two statistical signals are abnormal."), ("Review", "Valid AI review says block, with a score ≥ 85/100."), ("Fresh decision", "Incident stays open; policy revision has not changed.")]
+    for i, (h, b) in enumerate(gates):
+        row(s, 3.05+i*.77, h, b, 2.6, 20)
+    text(s, "Default: monitor. A person can isolate, restore or trust a device.", .75, 6.26, 11.8, .42, 21, TEAL, True)
+    note(s, "Quarantine means blocking one device at the router. The cloud path needs all four conditions shown here, not just the AI's vote. The sensor checks the policy again when applying an automatic command. The dashboard distinguishes a request from an acknowledged response. A person can restore the device.",
+         "This gate describes CLOUD-reviewed automatic isolation only. The edge also has local heuristics (for example, flagged-event volume and TCP reset/SYN ratios), gated by enforcement mode and trust but without an LLM requirement. Existing protocol, IP and DNS packet filters are separate: monitor mode does not disable them or remove existing blocks. Trusted devices still generate alerts and are exempt from automatic cloud/edge isolation; explicitly requested manual isolation remains possible. Granting trust queues restoration of an existing MAC block. Review failure prevents this cloud decision from automatically isolating, but does not disable independent edge protections. Sensor acknowledgment proves its map update, not actual packet blocking in a validated gateway.",
+         ["Server/src/router_socket.rs: apply_review", "Server/src/policy.rs", "Router/daemon/src/main.rs", "Router/daemon/src/network.rs"])
 
+    s = base(p, "The demonstration", "Follow one laptop from alert to response.")
+    row(s, 2.4, "Monitor", "Simulate a scan. Read the alert and its evidence.", 2.2)
+    row(s, 3.4, "Allow response", "Enable automatic mode; repeat and check the acknowledgment.", 2.2)
+    row(s, 4.4, "Trust + recover", "Trust the device; test reviewer failure; reset the demo.", 2.2)
+    box(s, .75, 5.65, 11.85, .95)
+    text(s, "Real backend. Simulated sensor. Scripted offline reviewer.\nThe booth demonstration does not block real packets.", .95, 5.83, 11.45, .7, 20, TEAL)
+    note(s, "Show the actual dashboard, not these slides, for this part. Start with an alert in monitor mode, open its evidence, then demonstrate the response acknowledgment. Trust the device and show that alerts remain. Finally show a failed review and restore the next-visitor state.",
+         "From the repository root: bash setup.sh --demo; python3 scripts/booth.py doctor; python3 scripts/booth.py start. In a second terminal run python3 scripts/booth.py tour. Open https://localhost:3100 and use the disposable operator credentials printed by the runner. The deterministic supervisor is explicitly labeled DEMO. Use docs/demo/CIPHER_demo.mp4 if live presentation fails. Manual hooks and rehearsal assertions are documented in docs/DEMO_GUIDE.md. The software rehearsal exercises alerts, trust, response modes, command failures, provider errors and recovery; it does not establish hardware enforcement or detection accuracy.",
+         ["docs/DEMO_GUIDE.md", "docs/demo/README.md", "scripts/booth.py"])
 
-    # 07 — The live booth story and its boundaries.
-    s = base(prs, "07 / Booth walkthrough", "Alerts stay visible. Operators stay in control.")
-    tag(s, "REHEARSED SOFTWARE FLOW", 0.80, 2.44, 3.42)
-    bullets(s, ["See unusual activity and its evidence", "Enable response, then trust the device", "Show provider failure and recovery"],
-            0.85, 3.28, 8.5, size=25, step=0.88)
-    rect(s, 10.08, 3.23, 2.50, 2.34, PANEL, LINE, radius=True)
-    text(s, "DEMO", 10.31, 3.60, 2.04, 0.67, 28, AMBER, True, font=MONO)
-    text(s, "simulated sensor", 10.31, 4.44, 2.04, 0.35, 13, MUTED)
-    text(s, "real backend", 10.31, 5.00, 2.04, 0.35, 14, TEAL, True, font=MONO)
-    notes(s, "Three-minute flow: reset; scan in monitor mode; enable enforcement then scan; trust then scan; provider outage then scan; reset. Open incident evidence, show requested versus acknowledged responses and the trusted-device exemption. The fixture labels its verdicts DEMO; no physical packets are blocked. A legitimate-download scenario changes one feature and remains allowed. Additional verified software flows include explicit command failure, reconnect/replay, false-positive review and telemetry export. The actual daemon transport also has a separate TLS reconnect/outbox test; the booth's fake sensor does not establish kernel correctness. The kernel watchdog bypasses CIPHER filtering after a stale heartbeat, but real topology and failure recovery still need hardware validation. Keep an established firewall as the baseline security boundary.", ["ieee-cs-tech-project/docs/DEMO_GUIDE.md", "ieee-cs-tech-project/scripts/booth.py", "ieee-cs-tech-project/Router/daemon/src/network.rs", KERNEL])
+    s = base(p, "What is proven so far?", "A working software demo. Hardware proof comes next.")
+    text(s, "Implemented + rehearsed", .75, 2.5, 5.65, .55, 25, TEAL, True)
+    text(s, "Statistical alerts + saved baselines\nTrust + incident review\nCommand acknowledgments\nReconnect + retry handling", .75, 3.4, 5.65, 2.65, 23)
+    line(s, 6.6, 2.45, 6.6, 6.2)
+    text(s, "Still to measure", 7.02, 2.5, 5.55, .55, 25, TEAL, True)
+    text(s, "Actual gateway packet blocking\nCorrect traffic attribution\nMissed attacks + false alarms\nSpeed, resource use + AI value", 7.02, 3.4, 5.55, 2.65, 23)
+    note(s, "We can demonstrate the software behavior. The next step is to verify the real gateway: are we seeing the right traffic, and do the response commands really block it? After that, we can measure whether this approach helps more than it disrupts.",
+         "The repository's readiness audit reports builds, integration checks, fixture-based provider tests, eBPF compilation and real daemon transport reconnect tests. These are earlier engineering checks, not new hardware tests performed for this presentation. Physical XDP attachment/enforcement, full bidirectional attribution, live provider/account availability, attack accuracy and performance need separate validation. Compare the same hardware with firewall alone, firewall plus statistics, and firewall plus model review. Measure missed threats, false blocks per device-day, CPU/RAM, throughput, tail latency, failure recovery, model cost and operator effort. Telemetry retention is 24 hours; dashboard history is capped at 5,000 reports and exports at 10,000. Shared sensor secrets and MAC-based identity need hardening before broader deployment.",
+         ["docs/BOOTH_READINESS.md", "README.md", "tests/integration.py", "tests/supervisor.py"])
 
-    # 08 — Narrow customer hypothesis without an invented market size.
-    s = base(prs, "08 / Initial customer hypothesis", "Start with small offices we can support.")
-    card(s, 0.75, 2.65, 5.63, 3.46, "PILOT PROFILE", ["Mixed office + IoT devices", "Compatible Linux gateway"], TEAL)
-    card(s, 6.95, 2.65, 5.63, 3.46, "TEST THE NEED", ["Actionable alerts", "Manageable support burden"], BLUE)
-    text(s, "Customer demand and willingness to pay remain unvalidated.",
-         0.80, 6.49, 11.8, 0.25, 12, MUTED)
-    notes(s, "This narrows the original SOHO ambition to manageable, engineer-supported design partners. It is a customer hypothesis, not evidence of signed customers, validated market size or willingness to pay. Commodity hardware still requires suitable kernels, permissions, NICs and deployment configuration. Test whether actionable device-level alerts and careful intervention solve a real problem beyond the site's existing firewall and DNS controls. Evaluate deployment, server/model costs, operator workload and support effort. Multi-gigabit links are one future workload to benchmark, not a claimed performance level or quantified adoption opportunity. No revenue, price, margin or growth figures are introduced.", [DOC, OUTLINE, "Proposed customer-discovery and pilot scope."])
+    s = base(p, "The Four Horsemen / IEEE Computer Society", "You can understand the system one layer at a time.")
+    row(s, 2.5, "Networks + Linux", "Follow a packet through the router and its filters.", 3.3)
+    row(s, 3.52, "Rust + data", "Trace one report from the sensor to an incident.", 3.3)
+    row(s, 4.54, "Testing + interface", "Reproduce a scenario and make its evidence clearer.", 3.3)
+    text(s, "Next: gateway testing, security review and small-office pilot feedback.", .75, 5.85, 11.9, .5, 21)
+    link = text(s, SITE, .75, 6.4, 11.9, .35, 16, TEAL)
+    link.text_frame.paragraphs[0].runs[0].hyperlink.address = SITE
+    note(s, "You do not need to know every technology to start. Choose one layer and follow one report. The website has the slides, a recorded demo, the source and setup instructions. We welcome technical feedback on the gateway and on how to explain the evidence clearly.",
+         "The Four Horsemen is the project team. Networks, eBPF, Rust, statistical analysis and interface work describe technical domains, not invented specialist credentials. The practical ask is for infrastructure/security review, hardware testing feedback and small-office design partners after validation. No partnership, hiring offer, customer commitment or immediate live deployment is promised. Suggested first-year exercise: explain why a port scan is only a hypothesis, then identify which isolation gates would prevent a false block. A useful discussion question: what benign activity could also produce an alert?",
+         ["README.md", "docs/CIPHER_EXPLAINED.md", "docs/DEMO_GUIDE.md"])
 
-    # 09 — A concrete comparison that can falsify the hypothesis.
-    s = base(prs, "09 / Validation plan", "Prove added protection at an acceptable cost.")
-    card(s, 0.75, 2.65, 3.75, 3.46, "Security", ["Missed threats", "False blocks"], TEAL)
-    card(s, 4.79, 2.65, 3.75, 3.46, "Efficiency", ["CPU / RAM", "Throughput / p99 latency"], BLUE)
-    card(s, 8.83, 2.65, 3.75, 3.46, "Operations", ["Installation effort", "Failure recovery"], AMBER)
-    text(s, "Same hardware: firewall alone → + statistics → + LLM review",
-         0.80, 6.42, 11.8, 0.44, 18, MUTED)
-    notes(s, "Proposed experiment, not completed testing. Compare a well-configured baseline firewall, baseline plus CIPHER's statistical/local analysis, and baseline plus LLM review using the same hardware and traffic. Include ordinary downloads, backups, calls and updates as well as labeled malicious scenarios. First verify accurate telemetry and actual command application. Measure throughput, loss, latency distributions, CPU/RAM, false blocks per device-day, missed labeled threats, model-call cost and operator effort. Define acceptable thresholds with pilot partners before testing; do not invent targets as achieved results. Separate existing-rule drop latency from time to detect and block a new behavior. Record release, NIC/driver, kernel and XDP mode. Proceed only if additional security value outweighs disruption and operating cost; a simpler implementation may win.", [faq + ": sections 22–24.", nft, "Proposed comparative evaluation; no results claimed."])
-
-    # 10 — Disclose the current state on the slide itself.
-    s = base(prs, "10 / Prototype status", "Ready to demonstrate. Hardware proof is next.")
-    card(s, 0.75, 2.65, 5.63, 3.58, "SHOW TODAY", ["Alerts, trust + incident review", "Acknowledged responses + recovery"], TEAL)
-    card(s, 6.95, 2.65, 5.63, 3.58, "VALIDATE NEXT", ["Live provider account + model", "Real XDP packet blocking"], AMBER)
-    text(s, "Synthetic traffic • real backend • scripted offline supervisor",
-         0.80, 6.49, 11.8, 0.25, 12, MUTED)
-    notes(s, "Updated after booth preparation on 17 October 2026. Builds, TLS/API integration, role checks, both supervisor adapters against fixtures, saved trust/baselines, acknowledged commands and the real daemon reconnect/outbox test pass. The presenter rehearsal checks normal traffic, single-feature download, monitor/enforce, trust, manual overrides, failed commands, provider outage/malformed response, upload anomaly, incident review, offline replay, export and reset. Browser rehearsal covers the actual dashboard. This supersedes older notes claiming missing TLS checks, authorization, database initialization and reconnect support. Live provider calls have not been made because no credentials are configured. eBPF compiles but physical packet blocking, real gateway attribution, detection accuracy and performance remain unverified. The one-interface implementation is not full bidirectional gateway attribution. Do not claim production readiness, measured accuracy, guaranteed availability, or proof of attack prevention from this simulation. See the readiness matrix and recorded demo for the exact scope.", ["ieee-cs-tech-project/docs/BOOTH_READINESS.md", "ieee-cs-tech-project/docs/DEMO_GUIDE.md", "ieee-cs-tech-project/tests/integration.py", "ieee-cs-tech-project/tests/supervisor.py", "ieee-cs-tech-project/Router/daemon/src/network.rs"])
-
-
-    # 11 — Domains, without inventing credentials or one owner per card.
-    s = base(prs, "11 / The team", "The 4 Horsemen")
-    domains = [
-        ("Networks", "Deployment + testing", TEAL),
-        ("eBPF", "Packet enforcement", BLUE),
-        ("Rust", "Edge + server", TEAL),
-        ("AI", "Behavioral analysis", BLUE),
-    ]
-    for i, (domain, detail, accent) in enumerate(domains):
-        card(s, 0.75 + i * 3.02, 2.68, 2.77, 3.5,
-             domain, [detail], accent, f"0{i + 1}")
-    notes(s, "The cards show technical domains, not four separate verified specialist credentials. The General Outline assigns systems/Rust to Zakaria, security/statistical modeling to Raneem, and full-stack/UI to Ayham; it identifies the kernel/network owner only as 'You'. Do not invent that person's name or imply separate network and eBPF headcount. The team has source spanning these domains; experienced infrastructure and security reviewers would help validate and harden the prototype.", [OUTLINE, "ieee-cs-tech-project/README.md"])
-
-    # 12 — A credible ask tied to readiness gates.
-    s = base(prs, "12 / Startup Alley ask", "Help us earn the next deployment.")
-    card(s, 0.75, 2.65, 3.75, 3.55, "Design partners", ["Define SOHO pilot needs"], TEAL, "01")
-    card(s, 4.79, 2.65, 3.75, 3.55, "Hardware feedback", ["Review edge/server setup"], BLUE, "02")
-    card(s, 8.83, 2.65, 3.75, 3.55, "Mentors", ["Validate security + reliability"], AMBER, "03")
-    text(s, "Rehearsed demo → gateway validation → measured pilots",
-         0.80, 6.42, 11.8, 0.44, 19, MUTED)
-    notes(s, "Ask for introductions to early SOHO design partners, feedback on the physical gateway and separate server arrangement, and infrastructure/security mentors. The sequence is intentional: demonstrate the rehearsed software flow; verify actual gateway visibility and packet enforcement; validate provider calls; agree on pilot scope and restoration; collect comparative evidence before relying on automation. Monitor-and-alert and operator review are implemented, but packet-level filtering remains active. A truly passive deployment is not established by toggling monitor mode. Keep baseline firewall protection in place. No immediate live-office installation, funding amount, signed partnership, customer count or delivery date is promised. Pilot entry and success criteria should be agreed with partners.", ["User brief: Startup Alley access, deployment feedback and mentor introductions.", faq, "Proposed readiness gates following independent critique."])
-
-    if len(prs.slides) != 12:
-        raise RuntimeError("The Startup Alley pitch must contain exactly 12 slides.")
-    # Catch accidental placement outside the canvas before producing the file.
-    for number, slide in enumerate(prs.slides, 1):
-        for shape in slide.shapes:
-            if (shape.left < 0 or shape.top < 0 or
-                    shape.left + shape.width > prs.slide_width or
-                    shape.top + shape.height > prs.slide_height):
-                raise ValueError(f"Slide {number}: shape outside slide bounds: {shape.name}")
-    return prs
-
-
-def main():
-    prs = build_deck()
-    prs.save(OUTPUT)
-    print(f"Created {OUTPUT} ({len(prs.slides)} slides)")
+    assert len(p.slides) == 10
+    for n, s in enumerate(p.slides, 1):
+        for sh in s.shapes:
+            # The stock theme supplies shadows even for lines; keep the deck flat.
+            for effect in sh._element.findall(".//{http://schemas.openxmlformats.org/drawingml/2006/main}effectRef"):
+                effect.set("idx", "0")
+            if sh.left < 0 or sh.top < 0 or sh.left+sh.width > p.slide_width or sh.top+sh.height > p.slide_height:
+                raise ValueError(f"Slide {n}: out-of-bounds shape {sh.name}")
+    return p
 
 
 if __name__ == "__main__":
-    main()
+    deck = build_deck()
+    output = ROOT / "CIPHER_Startup_Alley_Pitch.pptx"
+    deck.save(output)
+    (ROOT / "CIPHER_Presenter_Notes.txt").write_text("CIPHER — 10-slide student introduction\nSuggested pace: 8–10 minutes, plus optional demo.\n\n" + "\n".join(GUIDE), encoding="utf-8")
+    print(f"Created {output} ({len(deck.slides)} slides) and presenter notes")
