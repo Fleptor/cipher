@@ -11,7 +11,7 @@ from xml.sax.saxutils import escape
 import qrcode
 from docx import Document
 from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT
-from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Mm, Pt, RGBColor
@@ -108,7 +108,14 @@ def pdf():
     rect(margin, 39, usable, 132, DARK)
     rect(margin, 39, usable, 4, ORANGE)
     para("IEEE BAU COMPUTER SOCIETY", margin+12, 56, 345, 8.5, 11, ORANGE, "DisplayBold")
-    para("TECHNICAL SHEET / 2026", 421, 56, 120, 8, 11, "FFFFFF")
+    # Keep the complete official CS mark on white, with at least 0.3h clear space.
+    cs_panel_x, cs_panel_w = width-margin-154, 154
+    rect(cs_panel_x, 43, cs_panel_w, 90, "FFFFFF")
+    cs_width, cs_top = 112, 59
+    cs_height = cs_width * 632 / 2060
+    c.drawImage(str(BRAND / THEME["society_logo"]), cs_panel_x+(cs_panel_w-cs_width)/2,
+                height-cs_top-cs_height, width=cs_width, height=cs_height, mask="auto")
+    para("TECHNICAL SHEET / 2026", cs_panel_x+17, 111, 125, 7.7, 11, MUTED)
     para("CIPHER", margin+12, 82, usable-24, 46, 56, "FFFFFF", "DisplayBold")
     para("Network detection and response", margin+12, 142, usable-24, 17.4, 23, "FFFFFF", "Display")
     para(INTRO, margin, 182, usable, 11.3, 16, max_h=48)
@@ -238,19 +245,28 @@ def word():
             row._tr.get_or_add_trPr().append(OxmlElement("w:cantSplit"))
         return t
 
-    hero = table([180]).cell(0, 0)
+    hero_table = table([124, 56])
+    hero, society = hero_table.rows[0].cells
     cell_setup(hero, DARK, 160)
-    p = text(hero, "IEEE BAU COMPUTER SOCIETY\tTECHNICAL SHEET / 2026",
+    p = text(hero, "IEEE BAU COMPUTER SOCIETY",
              7.6, True, ORANGE, after=8, reuse=True, font="Montserrat")
-    p.paragraph_format.tab_stops.add_tab_stop(Mm(174), WD_TAB_ALIGNMENT.RIGHT)
-    borders = OxmlElement("w:pBdr")
-    border = OxmlElement("w:top")
-    for k, v in {"val":"single", "sz":"22", "space":"5", "color":ORANGE}.items():
+    border = hero_table._tbl.tblPr.find(qn("w:tblBorders")).find(qn("w:top"))
+    for k, v in {"val":"single", "sz":"22", "color":ORANGE}.items():
         border.set(qn(f"w:{k}"), v)
-    borders.append(border)
-    p._p.get_or_add_pPr().append(borders)
     text(hero, "CIPHER", 39, True, "FFFFFF", after=4, line=1, font="Montserrat")
-    text(hero, "Network detection and response", 16, False, "FFFFFF", after=2, font="Montserrat")
+    cell_setup(society, "FFFFFF", 220)
+    society.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
+    p = society.paragraphs[0]
+    p.paragraph_format.line_spacing = 1.0
+    p.paragraph_format.space_after = Pt(12)
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    cs = p.add_run().add_picture(str(BRAND / THEME["society_logo"]), width=Mm(39.5))
+    cs._inline.docPr.set("descr", "IEEE Computer Society logo")
+    p = text(society, "TECHNICAL SHEET / 2026", 7.6, color=MUTED, after=0)
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    subtitle = hero_table.add_row().cells[0].merge(hero_table.rows[1].cells[1])
+    cell_setup(subtitle, DARK, 100)
+    text(subtitle, "Network detection and response", 16, False, "FFFFFF", after=2, reuse=True, font="Montserrat")
     text(doc, INTRO, 11, before=10, after=14, line=1.18)
     text(doc, "FROM NETWORK TRAFFIC TO OPERATOR ACTION", 8.8, True, INK, after=7, font="Montserrat")
     flow = table([41.25, 5, 41.25, 5, 41.25, 5, 41.25])

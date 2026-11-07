@@ -14,11 +14,13 @@ website/brand/theme.json. Typography: Montserrat headings and Open Sans body
 text. Color: charcoal, white, CS orange #FFA300, with blue #00629B for links
 and the supplied branch mark. The original BAU branch artwork replaces the
 generic IEEE master logo. See docs/brand/BRAND_AND_SOURCES.txt for provenance.
+The full Computer Society logo sits at the top right on white, with clear space;
+the BAU branch logo remains beside the project link at the bottom.
 
 The PDF builder uses website/brand/fonts and embeds its fonts. Install these
 TTF files before editing or exporting the Word version to preserve the intended
 layout. Font licenses are included in that directory. The Word file uses native
-text and tables; the QR code and branch logo are images. Recheck page count and
+text and tables; the QR code and organization logos are images. Recheck page count and
 wrapping after changes.
 
 Project sources:
