@@ -18,6 +18,11 @@ from pptx.util import Inches, Pt
 ROOT = Path(__file__).resolve().parent
 BRAND = ROOT.parents[1] / "website/brand"
 THEME = json.loads((BRAND / "theme.json").read_text())
+CREDITS = json.loads((ROOT.parent / "project-credits.json").read_text())
+MEMBERS = CREDITS["members"]
+TEAM_LINE = " · ".join(MEMBERS)
+AUTHOR = "; ".join(MEMBERS) + f" ({CREDITS['team']})"
+CONTRIBUTOR = f"Contributor: {CREDITS['contributor']}"
 INK, BLUE, MUTED, LINE, PALE = (THEME[k] for k in ("ink", "blue", "muted", "line", "pale"))
 ORANGE, DARK = THEME["orange"], THEME["dark"]
 DISPLAY, BODY, MONO = THEME["heading_font"], THEME["body_font"], "DejaVu Sans Mono"
@@ -99,14 +104,16 @@ def build_deck():
     p = Presentation()
     p.slide_width, p.slide_height = Inches(13.333333), Inches(7.5)
     p.core_properties.title = "CIPHER — A first look at network security"
-    p.core_properties.author = "The Four Horsemen / IEEE Computer Society"
-    p.core_properties.subject = "Ten-slide student introduction with technical speaker notes"
+    p.core_properties.author = AUTHOR
+    p.core_properties.subject = f"Ten-slide student introduction with technical speaker notes. {CONTRIBUTOR}."
     p.core_properties.keywords = "CIPHER, eBPF, XDP, Rust, network security, first year"
 
     s = base(p, "A first look at network security", "CIPHER")
     text(s, "CIPHER", .68, 1.5, 11.8, 1.15, 65, INK, bold=True, font=DISPLAY, shape=s.shapes.title)
     text(s, "Notice when a device\nbreaks its routine.", .72, 3.0, 10.8, 1.6, 39, font=DISPLAY)
     text(s, "Learn normal activity. Explain unusual behavior.\nLet the operator decide how to respond.", .76, 5.05, 11.6, 1.0, 24)
+    text(s, TEAM_LINE, .76, 6.22, 11.6, .28, 13, INK, True)
+    text(s, CONTRIBUTOR, .76, 6.58, 11.6, .23, 11, MUTED)
     note(s, "Imagine a small office with laptops, cameras and a router, but no security team. CIPHER learns a routine for each device and highlights changes worth investigating. Today we will follow one laptop from normal activity to an alert.",
          "This is an experimental network detection and response system for small networks, designed to complement an established firewall. It is not a proven replacement for a mature firewall or intrusion prevention system. No measured accuracy, latency, throughput or production-readiness claims are made. Target users are small offices, shops and similar organizations; customer demand and willingness to pay remain hypotheses.",
          ["README.md", "docs/BOOTH_READINESS.md"])
@@ -199,15 +206,24 @@ def build_deck():
          "The repository's readiness audit reports builds, integration checks, fixture-based provider tests, eBPF compilation and real daemon transport reconnect tests. These are earlier engineering checks, not new hardware tests performed for this presentation. Physical XDP attachment/enforcement, full bidirectional attribution, live provider/account availability, attack accuracy and performance need separate validation. Compare the same hardware with firewall alone, firewall plus statistics, and firewall plus model review. Measure missed threats, false blocks per device-day, CPU/RAM, throughput, tail latency, failure recovery, model cost and operator effort. Telemetry retention is 24 hours; dashboard history is capped at 5,000 reports and exports at 10,000. Shared sensor secrets and MAC-based identity need hardening before broader deployment.",
          ["docs/BOOTH_READINESS.md", "README.md", "tests/integration.py", "tests/supervisor.py"])
 
-    s = base(p, "The Four Horsemen / IEEE Computer Society", "You can understand the system one layer at a time.")
-    row(s, 2.5, "Networks + Linux", "Follow a packet through the router and its filters.", 3.3)
-    row(s, 3.52, "Rust + data", "Trace one report from the sensor to an incident.", 3.3)
-    row(s, 4.54, "Testing + interface", "Reproduce a scenario and make its evidence clearer.", 3.3)
+    s = base(p, "The Four Horsemen / IEEE Computer Society", "Meet The Four Horsemen.")
+    text(s, "PROJECT TEAM", .75, 2.55, 5.2, .3, 12, MUTED, True, DISPLAY)
+    text(s, "\n".join(MEMBERS), .75, 3.05, 5.2, 2.0, 23, INK, True)
+    text(s, CONTRIBUTOR, .75, 5.18, 5.2, .4, 18, MUTED)
+    line(s, 6.3, 2.5, 6.3, 5.55)
+    text(s, "CHOOSE A LAYER TO EXPLORE", 6.8, 2.55, 5.8, .3, 12, MUTED, True, DISPLAY)
+    for y, heading, body in [
+        (3.05, "Networks + Linux", "Follow a packet through the router and its filters."),
+        (3.9, "Rust + data", "Trace one report from the sensor to an incident."),
+        (4.75, "Testing + interface", "Reproduce a scenario and make its evidence clearer."),
+    ]:
+        text(s, heading, 6.8, y, 5.8, .35, 19, INK, True)
+        text(s, body, 6.8, y+.4, 5.8, .42, 13, MUTED)
     text(s, "Next: gateway testing, security review and small-office pilot feedback.", .75, 5.85, 11.9, .5, 21)
     link = text(s, SITE, .75, 6.4, 11.9, .35, 16, BLUE)
     link.text_frame.paragraphs[0].runs[0].hyperlink.address = SITE
-    note(s, "You do not need to know every technology to start. Choose one layer and follow one report. The website has the slides, a recorded demo, the source and setup instructions. We welcome technical feedback on the gateway and on how to explain the evidence clearly.",
-         "The Four Horsemen is the project team. Networks, eBPF, Rust, statistical analysis and interface work describe technical domains, not invented specialist credentials. The practical ask is for infrastructure/security review, hardware testing feedback and small-office design partners after validation. No partnership, hiring offer, customer commitment or immediate live deployment is promised. Suggested first-year exercise: explain why a port scan is only a hypothesis, then identify which isolation gates would prevent a false block. A useful discussion question: what benign activity could also produce an alert?",
+    note(s, f"The Four Horsemen are {', '.join(MEMBERS[:-1])} and {MEMBERS[-1]}. {CREDITS['contributor']} is a contributor to the project. You do not need to know every technology to start. Choose one layer and follow one report. The website has the slides, a recorded demo, the source and setup instructions. We welcome technical feedback on the gateway and on how to explain the evidence clearly.",
+         "Networks, eBPF, Rust, statistical analysis and interface work describe technical domains, not individual assignments or specialist credentials. The practical ask is for infrastructure/security review, hardware testing feedback and small-office design partners after validation. No partnership, hiring offer, customer commitment or immediate live deployment is promised. Suggested first-year exercise: explain why a port scan is only a hypothesis, then identify which isolation gates would prevent a false block. A useful discussion question: what benign activity could also produce an alert?",
          ["README.md", "docs/CIPHER_EXPLAINED.md", "docs/DEMO_GUIDE.md"])
 
     assert len(p.slides) == 10
@@ -225,5 +241,5 @@ if __name__ == "__main__":
     deck = build_deck()
     output = ROOT / "CIPHER_Slide_Deck_Pitch.pptx"
     deck.save(output)
-    (ROOT / "CIPHER_Presenter_Notes.txt").write_text("CIPHER — 10-slide student introduction\nSuggested pace: 8–10 minutes, plus optional demo.\n\n" + "\n".join(GUIDE), encoding="utf-8")
+    (ROOT / "CIPHER_Presenter_Notes.txt").write_text(f"CIPHER — 10-slide student introduction\n{CREDITS['team']}: {TEAM_LINE}\n{CONTRIBUTOR}\nSuggested pace: 8–10 minutes, plus optional demo.\n\n" + "\n".join(GUIDE), encoding="utf-8")
     print(f"Created {output} ({len(deck.slides)} slides) and presenter notes")

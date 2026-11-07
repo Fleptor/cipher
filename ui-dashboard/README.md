@@ -1,5 +1,7 @@
 # CIPHER operator dashboard
 
+Project team: **The Four Horsemen** — Zakaria Alqarra, Belal Hamdan, Raneem Abdullah and Ayham Idais. **Contributor:** Omar Eid.
+
 The Rust server serves this directory as its authenticated operator interface.
 `index.html`, `styles.css`, and `app.js` are the active frontend. The older
 stylesheets in `css/` are not loaded by this interface.

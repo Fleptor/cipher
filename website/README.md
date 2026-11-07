@@ -1,5 +1,7 @@
 # CIPHER website
 
+Project team: **The Four Horsemen** — Zakaria Alqarra, Belal Hamdan, Raneem Abdullah and Ayham Idais. **Contributor:** Omar Eid.
+
 Public URL: https://belalhamdan.com/cipher/
 
 A static project presentation built with HTML, CSS and a small progressive-enhancement script. The hero contains an original SVG network illustration with two selectable scenarios; the rest of the page walks through architecture, detection, response, the recorded demo and project resources. No framework, analytics, externally hosted fonts or runtime dependencies. Navigation, technical disclosures and video controls remain usable without JavaScript; motion respects the reader’s reduced-motion preference.
@@ -27,7 +29,7 @@ Content is grounded in the current source, the booth readiness audit and the dem
 
 ## Verification — 7 November 2026
 
-The redesigned website renders without horizontal overflow at 320, 390, 768, 1024 and 1440 pixels. Local fonts, logos and document thumbnails load; the video, four document downloads and presenter notes return HTTP 200. Video metadata confirms a 78.24-second, 1440 × 900 recording. The scenario controls, mobile navigation, Escape/focus behavior and all four technical disclosures were exercised in Chromium without page errors. Navigation and disclosures also work with JavaScript disabled.
+The redesigned website renders without horizontal overflow at 320, 390, 768, 1024 and 1440 pixels. Local fonts, logos and document thumbnails load; the video, four document downloads and presenter notes return HTTP 200. The 1440 × 900 recording is now 86.24 seconds, including an eight-second team credit card appended on 7 November 2026. The scenario controls, mobile navigation, Escape/focus behavior and all four technical disclosures were exercised in Chromium without page errors. Navigation and disclosures also work with JavaScript disabled.
 
 Axe 4.10.3 reported no automated WCAG A/AA violations at desktop and mobile widths, including expanded technical content. Reduced-motion mode disables animation. Desktop and mobile layouts were visually inspected, and the silent video retains an adjacent text alternative. These checks are not a full accessibility certification.
 

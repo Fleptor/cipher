@@ -27,6 +27,10 @@ HERE = Path(__file__).resolve().parent
 ASSETS = HERE / "assets"
 BRAND = HERE.parents[1] / "website/brand"
 THEME = json.loads((BRAND / "theme.json").read_text())
+CREDITS = json.loads((HERE.parent / "project-credits.json").read_text())
+MEMBERS = CREDITS["members"]
+AUTHOR = "; ".join(MEMBERS) + f" ({CREDITS['team']})"
+CONTRIBUTOR = f"Contributor: {CREDITS['contributor']}"
 FONTS = BRAND / "fonts"
 STEM = "CIPHER_Technical_Sheet"
 SITE = "https://belalhamdan.com/cipher/"
@@ -76,8 +80,8 @@ def pdf():
     c = canvas.Canvas(str(HERE / f"{STEM}.pdf"), pagesize=A4, pageCompression=1,
                       invariant=1, initialFontName="OpenSans-Regular", lang="en-US")
     c.setTitle("CIPHER | Network detection and response")
-    c.setAuthor("The Four Horsemen / IEEE Computer Society")
-    c.setSubject("One-page project technical sheet")
+    c.setAuthor(AUTHOR)
+    c.setSubject(f"One-page project technical sheet. {CONTRIBUTOR}.")
     c.setKeywords("CIPHER, IEEE Computer Society, eBPF, XDP, Rust, network security, prototype")
     margin, usable = 42, width - 84
 
@@ -163,10 +167,12 @@ def pdf():
 
     # The user's complete branch artwork replaces the generic IEEE master mark.
     c.drawImage(str(ASSETS / "project-qr.png"), margin, height-817, width=54, height=54)
-    para("See the demo and explore the project", 111, 766, 303, 9.8, 14, INK, "SemiBold")
+    para(f"{CREDITS['team']} · @ieee_bau_cs", 111, 759, 303, 9, 12, INK, "SemiBold")
+    para(" · ".join(MEMBERS[:2]), 111, 774, 303, 8.4, 10, MUTED)
+    para(" · ".join(MEMBERS[2:]), 111, 785, 303, 8.4, 10, MUTED)
+    para(CONTRIBUTOR, 111, 796, 303, 8.4, 10, MUTED)
     para(f'<link href="{SITE}" color="#{BLUE}">{SITE.removeprefix("https://")}</link>',
-         111, 785, 303, 8.7, 12)
-    para("The Four Horsemen · @ieee_bau_cs", 111, 803, 303, 8, 11, MUTED)
+         111, 807, 303, 8.4, 10)
     c.drawImage(str(BRAND / THEME["branch_logo"]), width-margin-114, height-821,
                 width=114, height=114*876/1795, mask="auto")
     c.linkURL(SITE, (margin, height-817, margin+54, height-763), relative=0)
@@ -190,8 +196,8 @@ def word():
     for name in ("Title", "Subtitle", "Heading 1", "Heading 2"):
         doc.styles[name].font.name = "Montserrat"
     doc.core_properties.title = "CIPHER | Network detection and response"
-    doc.core_properties.author = "The Four Horsemen / IEEE Computer Society"
-    doc.core_properties.subject = "One-page project technical sheet"
+    doc.core_properties.author = AUTHOR
+    doc.core_properties.subject = f"One-page project technical sheet. {CONTRIBUTOR}."
     lang = OxmlElement("w:lang")
     lang.set(qn("w:val"), "en-US")
     normal.element.get_or_add_rPr().append(lang)
@@ -309,8 +315,11 @@ def word():
     qr = p.add_run().add_picture(str(ASSETS / "project-qr.png"), width=Mm(20))
     qr._inline.docPr.set("descr", "QR code linking to the CIPHER project website")
     cell = footer.cell(0, 1)
-    text(cell, "See the demo and explore the project", 10, True, after=4, reuse=True)
-    p = text(cell, "", 8.5, after=5)
+    text(cell, f"{CREDITS['team']} · @ieee_bau_cs", 9, True, after=4, reuse=True)
+    text(cell, " · ".join(MEMBERS[:2]), 8.4, color=MUTED, after=1)
+    text(cell, " · ".join(MEMBERS[2:]), 8.4, color=MUTED, after=1)
+    text(cell, CONTRIBUTOR, 8.4, color=MUTED, after=2)
+    p = text(cell, "", 8.5, after=0)
     link = OxmlElement("w:hyperlink")
     rel = doc.part.relate_to(SITE, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink", is_external=True)
     link.set(qn("r:id"), rel)
@@ -325,7 +334,6 @@ def word():
     r.append(t)
     link.append(r)
     p._p.append(link)
-    text(cell, "The Four Horsemen · @ieee_bau_cs", 8, color=MUTED, after=0)
     p = footer.cell(0, 3).paragraphs[0]
     p.paragraph_format.line_spacing = 1.0
     logo = p.add_run().add_picture(str(BRAND / THEME["branch_logo"]), width=Mm(40))

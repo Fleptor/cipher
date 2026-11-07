@@ -1,5 +1,7 @@
 # CIPHER demonstration guide
 
+Project team: **The Four Horsemen** — Zakaria Alqarra, Belal Hamdan, Raneem Abdullah and Ayham Idais. **Contributor:** Omar Eid.
+
 ## What is ready to show
 
 The reliable booth setup is an isolated **software demonstration**: synthetic FlatBuffers telemetry and sensor acknowledgments drive the real Rust backend, statistical detector, SQLite storage, authenticated dashboard and response policy. The offline supervisor is a scripted fixture, explicitly labeled as such. No physical packet enforcement or attack-detection accuracy is demonstrated.

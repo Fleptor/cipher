@@ -1,5 +1,7 @@
 # Booth readiness review — 17 October 2026
 
+Project team: **The Four Horsemen** — Zakaria Alqarra, Belal Hamdan, Raneem Abdullah and Ayham Idais. **Contributor:** Omar Eid.
+
 This review prioritizes failure modes that can interrupt a CIPHER demonstration or produce an unjustified isolation decision. It is not a claim of production readiness.
 
 | Gap | Delivered behavior | Remaining validation |

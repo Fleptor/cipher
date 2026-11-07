@@ -1,5 +1,7 @@
 # Dashboard / engine integration review
 
+Project team: **The Four Horsemen** — Zakaria Alqarra, Belal Hamdan, Raneem Abdullah and Ayham Idais. **Contributor:** Omar Eid.
+
 Reviewed 28 September 2026 against the complete `Technical Project` directory inventory, the current repository, full CIPHER documentation, technical blueprint, general outline, technical FAQ, proposal decks and Startup Alley deck. The older image-based Orange pitch describes Python/Ansible/Dioxus; the Startup Alley deck and current source describe a different, Rust-centered prototype. Implementation follows the current source and the newer deck's emphasis on observable integration correctness.
 
 ## What changed

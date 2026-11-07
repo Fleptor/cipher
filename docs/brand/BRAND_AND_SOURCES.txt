@@ -1,4 +1,8 @@
 CIPHER COMPUTER SOCIETY BRANDING
+
+Project team: The Four Horsemen — Zakaria Alqarra, Belal Hamdan, Raneem Abdullah and Ayham Idais.
+Contributor: Omar Eid.
+
 Updated 7 November 2026.
 
 Scope
@@ -9,6 +13,9 @@ Scope
   One-page PDF and editable Word sheet: docs/brochure/
 
 Shared source
+  docs/project-credits.json lists the four team members and project contributor
+  for the document generators and demo credit card. The public HTML and project
+  guides carry the same visible attribution.
   website/brand/theme.json is the palette and typography source for the slide
   and technical-sheet generators. scripts/build_brand.py derives brand.css
   for the two web presentations. scripts/build_site.py packages the site,

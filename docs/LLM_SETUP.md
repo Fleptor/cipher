@@ -1,5 +1,7 @@
 # CIPHER LLM setup
 
+Project team: **The Four Horsemen** — Zakaria Alqarra, Belal Hamdan, Raneem Abdullah and Ayham Idais. **Contributor:** Omar Eid.
+
 The adapters are implemented. This checkout has been tested against local fixtures; a real provider account/model still needs the connection test below. No model training is required. The statistical baseline learns separately from 50 reports per device.
 
 ## 1. Initialize the local configuration

@@ -1,4 +1,6 @@
 CIPHER — 10-slide student introduction
+The Four Horsemen: Zakaria Alqarra · Belal Hamdan · Raneem Abdullah · Ayham Idais
+Contributor: Omar Eid
 Suggested pace: 8–10 minutes, plus optional demo.
 
 SLIDE 1: CIPHER
@@ -119,13 +121,13 @@ README.md
 tests/integration.py
 tests/supervisor.py
 
-SLIDE 10: You can understand the system one layer at a time.
+SLIDE 10: Meet The Four Horsemen.
 ================================================================
 SAY
-You do not need to know every technology to start. Choose one layer and follow one report. The website has the slides, a recorded demo, the source and setup instructions. We welcome technical feedback on the gateway and on how to explain the evidence clearly.
+The Four Horsemen are Zakaria Alqarra, Belal Hamdan, Raneem Abdullah and Ayham Idais. Omar Eid is a contributor to the project. You do not need to know every technology to start. Choose one layer and follow one report. The website has the slides, a recorded demo, the source and setup instructions. We welcome technical feedback on the gateway and on how to explain the evidence clearly.
 
 TECHNICAL DETAIL / QUESTIONS
-The Four Horsemen is the project team. Networks, eBPF, Rust, statistical analysis and interface work describe technical domains, not invented specialist credentials. The practical ask is for infrastructure/security review, hardware testing feedback and small-office design partners after validation. No partnership, hiring offer, customer commitment or immediate live deployment is promised. Suggested first-year exercise: explain why a port scan is only a hypothesis, then identify which isolation gates would prevent a false block. A useful discussion question: what benign activity could also produce an alert?
+Networks, eBPF, Rust, statistical analysis and interface work describe technical domains, not individual assignments or specialist credentials. The practical ask is for infrastructure/security review, hardware testing feedback and small-office design partners after validation. No partnership, hiring offer, customer commitment or immediate live deployment is promised. Suggested first-year exercise: explain why a port scan is only a hypothesis, then identify which isolation gates would prevent a false block. A useful discussion question: what benign activity could also produce an alert?
 
 REPOSITORY SOURCES
 README.md

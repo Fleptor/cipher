@@ -1,5 +1,7 @@
 # CIPHER presentation
 
+Project team: **The Four Horsemen** — Zakaria Alqarra, Belal Hamdan, Raneem Abdullah and Ayham Idais. **Contributor:** Omar Eid.
+
 Redesigned for first-year students on 7 November 2026: **10 slides**, with an 8–10 minute narrative and an optional dashboard demonstration. The website build retains the earlier download filenames as aliases for existing links.
 
 - [Editable PowerPoint](CIPHER_Slide_Deck_Pitch.pptx): editable text and diagrams, with speaker notes on every slide.
@@ -19,6 +21,10 @@ Redesigned for first-year students on 7 November 2026: **10 slides**, with an 8�
 8. Demonstration with explicit simulation labels.
 9. Implemented behavior and remaining validation.
 10. Student entry points, project team and next steps.
+
+The title slide and final team slide name all four members and credit Omar Eid
+as a contributor. The same credits appear in document metadata and presenter
+notes. Names are read from `docs/project-credits.json` by the generator.
 
 Terms are defined as they appear. Notes preserve the scoring formula and floors, generic XDP, FlatBuffers/TLS transport, persistence/retry limits, local edge heuristics, privacy boundaries, comparison plan and pilot scope. They distinguish implemented behavior from hardware validation and measured security outcomes. Monitor mode governs new automatic device isolation; it does not turn off kernel packet filters. The model's score is not a calibrated probability.
 

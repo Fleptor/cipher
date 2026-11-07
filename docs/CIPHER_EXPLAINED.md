@@ -1,5 +1,7 @@
 # CIPHER in plain English
 
+Project team: **The Four Horsemen** — Zakaria Alqarra, Belal Hamdan, Raneem Abdullah and Ayham Idais. **Contributor:** Omar Eid.
+
 This is for anyone who has to explain CIPHER to someone who is not a network engineer: booth visitors, judges, family or a new teammate. Technical detail is in the [README](../README.md); what we can and cannot claim is in the [demo guide](DEMO_GUIDE.md).
 
 ## One sentence

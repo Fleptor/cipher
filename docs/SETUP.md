@@ -1,5 +1,7 @@
 # CIPHER setup: from a fresh laptop to a working AI reviewer
 
+Project team: **The Four Horsemen** — Zakaria Alqarra, Belal Hamdan, Raneem Abdullah and Ayham Idais. **Contributor:** Omar Eid.
+
 This guide covers every step from a clean Linux laptop to a CIPHER demo with a real AI model reviewing alerts. Follow it top to bottom. Each part ends with a check, so you know it worked before moving on.
 
 | Part | You end with | Time |

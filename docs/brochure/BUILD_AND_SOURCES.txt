@@ -1,5 +1,11 @@
 CIPHER TECHNICAL SHEET
 
+Project team: The Four Horsemen — Zakaria Alqarra, Belal Hamdan, Raneem Abdullah and Ayham Idais.
+Contributor: Omar Eid.
+
+Team names and contributor credit are shared through docs/project-credits.json.
+The PDF and Word versions include them in the footer and document metadata.
+
 CIPHER_Technical_Sheet.pdf is the one-page A4 print master.
 CIPHER_Technical_Sheet.docx is an editable Word version of the same content.
 Print the PDF at actual size (100%), single-sided, on A4 paper.

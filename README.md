@@ -1,5 +1,7 @@
 # CIPHER
 
+Project team: **The Four Horsemen** — Zakaria Alqarra, Belal Hamdan, Raneem Abdullah and Ayham Idais. **Contributor:** Omar Eid.
+
 The Four Horsemen / IEEE Computer Society network detection and response prototype.
 
 CIPHER collects eBPF/XDP metadata with a Rust sensor, sends acknowledged FlatBuffers reports over a TLS WebSocket, and analyzes them in a Rust/Axum control plane. The server also serves the operator dashboard.

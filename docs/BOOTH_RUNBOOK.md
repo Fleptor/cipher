@@ -1,5 +1,7 @@
 # CIPHER booth setup and scenarios
 
+Project team: **The Four Horsemen** — Zakaria Alqarra, Belal Hamdan, Raneem Abdullah and Ayham Idais. **Contributor:** Omar Eid.
+
 ## 1. Prerequisites
 
 Use Linux for the physical eBPF sensor. Install Rust/Cargo with Rust 2024 edition support, a C/C++ compiler toolchain, CMake, pkg-config, OpenSSL development headers, Python 3, OpenSSL CLI, and `flatc`. Live eBPF compilation additionally needs Clang with the BPF target, Linux headers and libbpf headers. Node.js is used for the JavaScript syntax check.
