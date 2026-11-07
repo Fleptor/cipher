@@ -1,6 +1,6 @@
 # CIPHER website
 
-Public URL: https://belalhamdan.com/ieee-cs-tech-project/
+Public URL: https://belalhamdan.com/cipher/
 
 A static project presentation built with HTML, CSS and a small progressive-enhancement script. The hero contains an original SVG network illustration with two selectable scenarios; the rest of the page walks through architecture, detection, response, the recorded demo and project resources. No framework, analytics, externally hosted fonts or runtime dependencies. Navigation, technical disclosures and video controls remain usable without JavaScript; motion respects the reader’s reduced-motion preference.
 
@@ -17,7 +17,7 @@ Open http://localhost:8080. The package script generates `brand/brand.css` from 
 
 ## Publish
 
-`.github/workflows/website.yml` packages and deploys the page through GitHub Pages when website or presentation files change on `cipher/booth-readiness` or `main`. The project inherits `belalhamdan.com` from the existing GitHub user site. Do not set the project repository's custom domain to the apex or add a `CNAME`; preserve its `/ieee-cs-tech-project/` path.
+`.github/workflows/website.yml` packages and deploys the page through GitHub Pages when website or presentation files change on `cipher/booth-readiness` or `main`. The GitHub repository is `Fleptor/cipher`, so its project site is served at `/cipher/`. It inherits `belalhamdan.com` from the existing GitHub user site; do not set a separate apex custom domain or add a `CNAME` here. The personal-site repository contains a redirect from the former `/ieee-cs-tech-project/` landing page.
 
 The demo branch is named in source links because it contains the integrated dashboard and booth documentation. Update these links and the workflow branch list if that work is merged to a different branch.
 

@@ -83,8 +83,8 @@ source "$HOME/.cargo/env"     # fish: source ~/.cargo/env.fish
 ## 3. Get and build CIPHER
 
 ```sh
-git clone https://github.com/Fleptor/ieee-cs-tech-project.git
-cd ieee-cs-tech-project
+git clone https://github.com/Fleptor/cipher.git
+cd cipher
 bash setup.sh --demo
 ```
 

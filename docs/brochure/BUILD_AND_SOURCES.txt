@@ -32,4 +32,4 @@ Project sources:
 The sheet labels the booth simulation and remaining hardware/accuracy
 validation. It makes no measured security accuracy or performance claims.
 The QR code and clickable project link both point to:
-  https://belalhamdan.com/ieee-cs-tech-project/
+  https://belalhamdan.com/cipher/

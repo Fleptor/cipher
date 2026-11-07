@@ -1,11 +1,11 @@
 # CIPHER presentation
 
-Redesigned for first-year students on 7 November 2026: **10 slides**, with an 8–10 minute narrative and an optional dashboard demonstration. The original filenames are retained so existing links continue to work.
+Redesigned for first-year students on 7 November 2026: **10 slides**, with an 8–10 minute narrative and an optional dashboard demonstration. The website build retains the earlier download filenames as aliases for existing links.
 
 - [Editable PowerPoint](CIPHER_Slide_Deck_Pitch.pptx): editable text and diagrams, with speaker notes on every slide.
 - [PDF](CIPHER_Slide_Deck_Pitch.pdf): portable presentation fallback.
 - [Presenter notes](CIPHER_Presenter_Notes.txt): accessible plain-text narration, deeper engineering details and repository sources.
-- [Project website](https://belalhamdan.com/ieee-cs-tech-project/): the same explanation, demo and downloads in one page.
+- [Project website](https://belalhamdan.com/cipher/): the same explanation, demo and downloads in one page.
 
 ## Presentation flow
 

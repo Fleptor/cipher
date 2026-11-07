@@ -6,11 +6,11 @@
   <meta name="theme-color" content="#202020">
   <title>CIPHER — Know the normal. Notice the unusual.</title>
   <meta name="description" content="Inside CIPHER, an IEEE BAU Computer Society network security prototype. Explore the architecture, watch the demo, and see how unusual device behavior becomes an actionable incident.">
-  <link rel="canonical" href="https://belalhamdan.com/ieee-cs-tech-project/">
+  <link rel="canonical" href="https://belalhamdan.com/cipher/">
   <meta property="og:title" content="CIPHER — Know the normal. Notice the unusual.">
   <meta property="og:description" content="Network security, from the packet to the person. An IEEE BAU Computer Society project.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://belalhamdan.com/ieee-cs-tech-project/">
+  <meta property="og:url" content="https://belalhamdan.com/cipher/">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="brand/brand.css">
   <link rel="stylesheet" href="style.css">
@@ -195,7 +195,7 @@ scale = max(standard deviation, floor, abs(mean) × 0.1)</code></pre>
           <p><strong>Introduce unusual traffic.</strong> A simulated scan changes several measurements. An incident shows the evidence and a plain-language explanation. In monitor mode, the device stays connected.</p>
           <p><strong>Enable automatic response.</strong> Repeat the scenario. The server requests isolation when the gate passes; the dashboard waits for the simulated sensor’s acknowledgment.</p>
           <p><strong>Trust and recovery.</strong> Trusting the device preserves alerts and exempts it from automatic isolation. A reviewer failure leaves statistical alerts available without authorizing a cloud block. Reset prepares the next demonstration.</p>
-          <p>For the full presenter-led sequence, run <code>python3 scripts/booth.py tour</code> after starting the demo. See the <a href="https://github.com/Fleptor/ieee-cs-tech-project/blob/cipher/booth-readiness/docs/DEMO_GUIDE.md">demo guide</a>.</p>
+          <p>For the full presenter-led sequence, run <code>python3 scripts/booth.py tour</code> after starting the demo. See the <a href="https://github.com/Fleptor/cipher/blob/cipher/booth-readiness/docs/DEMO_GUIDE.md">demo guide</a>.</p>
         </div>
       </details>
     </section>
@@ -207,7 +207,7 @@ scale = max(standard deviation, floor, abs(mean) × 0.1)</code></pre>
         <article class="status-card"><span class="status-label"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg> IMPLEMENTED &amp; REHEARSED</span><h3>The control plane is in place.</h3><ul><li>Statistical alerts and saved baselines</li><li>Device trust and incident review</li><li>Command acknowledgments and retries</li><li>Reconnect handling and provider fixture tests</li></ul></article>
         <article class="status-card next"><span class="status-label"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg> NEXT VALIDATION</span><h3>Prove it on a real gateway.</h3><ul><li>Actual XDP packet blocking and traffic attribution</li><li>Missed attacks, false alarms, and model value</li><li>Performance, recovery, and live model setup</li><li>Per-sensor credentials and stronger device identity</li></ul></article>
       </div>
-      <p class="status-foot">A sensor map acknowledgment alone does not prove packet blocking. Detection accuracy and performance have not been established. <a href="https://github.com/Fleptor/ieee-cs-tech-project/blob/cipher/booth-readiness/docs/BOOTH_READINESS.md">Read the readiness audit <svg class="icon" aria-hidden="true"><use href="#i-external"/></svg></a></p>
+      <p class="status-foot">A sensor map acknowledgment alone does not prove packet blocking. Detection accuracy and performance have not been established. <a href="https://github.com/Fleptor/cipher/blob/cipher/booth-readiness/docs/BOOTH_READINESS.md">Read the readiness audit <svg class="icon" aria-hidden="true"><use href="#i-external"/></svg></a></p>
     </div></section>
 
     <section class="section wrap resources-section" id="resources" aria-labelledby="resources-title">
@@ -216,7 +216,7 @@ scale = max(standard deviation, floor, abs(mean) × 0.1)</code></pre>
       <div class="resource-grid">
         <article class="resource-card"><div class="resource-art deck-art"><span class="resource-type">THE PRESENTATION</span><img src="assets/deck-preview.webp" width="1000" height="563" loading="lazy" alt="Cover of the CIPHER slide deck, with Computer Society styling and the BAU branch logo"></div><div class="resource-body"><h3>The full story, in ten slides.</h3><p>A student introduction with diagrams and technical speaker notes.</p><div class="resource-actions"><a href="assets/CIPHER_Slide_Deck_Pitch.pdf">View PDF <svg class="icon" aria-hidden="true"><use href="#i-external"/></svg></a><a href="assets/CIPHER_Slide_Deck_Pitch.pptx" download>PowerPoint <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg></a></div></div></article>
         <article class="resource-card"><div class="resource-art sheet-art"><span class="resource-type">THE TECHNICAL SHEET</span><img src="assets/sheet-preview.webp" width="636" height="900" loading="lazy" alt="The one-page CIPHER technical sheet, showing its architecture and response controls"></div><div class="resource-body"><h3>The essentials, on one page.</h3><p>A print-ready A4 handout to keep alongside the project.</p><div class="resource-actions"><a href="assets/CIPHER_Technical_Sheet.pdf">View PDF <svg class="icon" aria-hidden="true"><use href="#i-external"/></svg></a><a href="assets/CIPHER_Technical_Sheet.docx" download>Word <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg></a></div></div></article>
-        <article class="resource-card code-card"><div class="resource-art code-art"><span class="resource-type">THE SOURCE</span><div class="code-tree" aria-hidden="true"><span>cipher/</span><p>├─ <b>Router/</b><small>observe + summarize</small></p><p>├─ <b>Server/</b><small>analyze + coordinate</small></p><p>└─ <b>ui-dashboard/</b><small>review + respond</small></p></div></div><div class="resource-body"><h3>Follow one report.</h3><p>Explore the implementation or run a local demonstration.</p><div class="resource-actions"><a href="https://github.com/Fleptor/ieee-cs-tech-project/tree/cipher/booth-readiness">GitHub <svg class="icon" aria-hidden="true"><use href="#i-external"/></svg></a><a href="https://github.com/Fleptor/ieee-cs-tech-project/blob/cipher/booth-readiness/docs/SETUP.md">Setup guide <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></div></article>
+        <article class="resource-card code-card"><div class="resource-art code-art"><span class="resource-type">THE SOURCE</span><div class="code-tree" aria-hidden="true"><span>cipher/</span><p>├─ <b>Router/</b><small>observe + summarize</small></p><p>├─ <b>Server/</b><small>analyze + coordinate</small></p><p>└─ <b>ui-dashboard/</b><small>review + respond</small></p></div></div><div class="resource-body"><h3>Follow one report.</h3><p>Explore the implementation or run a local demonstration.</p><div class="resource-actions"><a href="https://github.com/Fleptor/cipher/tree/cipher/booth-readiness">GitHub <svg class="icon" aria-hidden="true"><use href="#i-external"/></svg></a><a href="https://github.com/Fleptor/cipher/blob/cipher/booth-readiness/docs/SETUP.md">Setup guide <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></a></div></div></article>
       </div>
       <p class="notes-link">Presenting CIPHER? <a href="assets/CIPHER_Presenter_Notes.txt">Open the presenter notes <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></a></p>
     </section>

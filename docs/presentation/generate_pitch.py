@@ -21,7 +21,7 @@ THEME = json.loads((BRAND / "theme.json").read_text())
 INK, BLUE, MUTED, LINE, PALE = (THEME[k] for k in ("ink", "blue", "muted", "line", "pale"))
 ORANGE, DARK = THEME["orange"], THEME["dark"]
 DISPLAY, BODY, MONO = THEME["heading_font"], THEME["body_font"], "DejaVu Sans Mono"
-SITE = "https://belalhamdan.com/ieee-cs-tech-project/"
+SITE = "https://belalhamdan.com/cipher/"
 GUIDE = []
 
 
