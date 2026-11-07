@@ -3,6 +3,7 @@ Updated 7 November 2026.
 
 Scope
   Project website: website/
+  Operator dashboard: ui-dashboard/
   Interactive web presentation: docs/showcase/index.html
   Ten-slide deck and PDF: docs/presentation/
   One-page PDF and editable Word sheet: docs/brochure/
@@ -12,6 +13,10 @@ Shared source
   and technical-sheet generators. scripts/build_brand.py derives brand.css
   for the two web presentations. scripts/build_site.py packages the site,
   local fonts, logos, deck and both technical-sheet formats.
+  scripts/build_brand.py --dashboard refreshes the dashboard's checked-in
+  asset bundle so its existing server can serve the same identity offline.
+  Dashboard status colors remain separate from brand emphasis; see
+  ui-dashboard/README.md for the active frontend and validation details.
 
 Official Computer Society guidance
   https://www.computer.org/about/ieee-computer-society-brand-guide

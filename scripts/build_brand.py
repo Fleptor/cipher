@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Generate shared CSS from the same brand tokens used by the document builders."""
 import json
+import argparse
+import shutil
 from pathlib import Path
 
 BRAND = Path(__file__).resolve().parents[1] / "website/brand"
@@ -28,5 +30,21 @@ def build():
     (BRAND / "brand.css").write_text("\n".join(rules) + "\n")
 
 
+def sync_dashboard():
+    """Keep the independently served dashboard self-contained and usable offline."""
+    assets = BRAND.parents[1] / "ui-dashboard/assets"
+    destination = assets / "brand"
+    destination.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(BRAND / "brand.css", destination / "brand.css")
+    for directory in ("fonts", "logos"):
+        shutil.copytree(BRAND / directory, destination / directory, dirs_exist_ok=True)
+    shutil.copy2(BRAND.parent / "favicon.svg", assets / "cipher-logo.svg")
+
+
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--dashboard", action="store_true", help="Also refresh the dashboard's bundled fonts, logos and CSS")
+    args = parser.parse_args()
     build()
+    if args.dashboard:
+        sync_dashboard()

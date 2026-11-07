@@ -3,10 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#0c131c" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#202020" />
     <title>CIPHER · Network operations</title>
     <link rel="icon" href="assets/cipher-logo.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="assets/brand/brand.css" />
     <link rel="stylesheet" href="styles.css" />
     <script src="app.js" defer></script>
   </head>
@@ -22,8 +23,8 @@
           ×
         </button>
         <a href="#overview" class="brand" aria-label="CIPHER overview"
-          ><span class="brand-mark">C<span>⌁</span></span
-          ><span>CIPHER<small>NETWORK DEFENSE</small></span></a
+          ><img class="brand-mark" src="assets/cipher-logo.svg" width="40" height="40" alt="" />
+          <span>CIPHER<small>IEEE BAU COMPUTER SOCIETY</small></span></a
         >
         <div class="network-picker">
           <label for="network">WORKSPACE</label
@@ -34,20 +35,20 @@
         <p class="nav-label">MONITOR</p>
         <nav aria-label="Main navigation">
           <a href="#overview" data-view="overview" class="selected"
-            ><span class="nav-icon">◫</span> Overview</a
+            ><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Overview</a
           >
           <a href="#devices" data-view="devices"
-            ><span class="nav-icon">▦</span> Devices
+            ><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="15" height="12" rx="2"/><path d="M6 20h7m-3-5v5"/><rect x="17" y="9" width="5" height="12" rx="1"/></svg> Devices
             <span id="nav-count" class="count">—</span></a
           >
           <a href="#incidents" data-view="incidents"
-            ><span class="nav-icon">◇</span> Incidents</a
+            ><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 10 10-10 10L2 12Z"/><path d="M12 7v6m0 3v1"/></svg> Incidents</a
           >
           <a href="#intelligence" data-view="intelligence"
-            ><span class="nav-icon">◎</span> Threat intelligence</a
+            ><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg> Threat intelligence</a
           >
           <a href="#engine" data-view="engine"
-            ><span class="nav-icon">⌘</span> Engine health</a
+            ><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h5l3-8 4 16 3-8h5"/></svg> Engine health</a
           >
         </nav>
         <div class="sidebar-bottom">
@@ -82,6 +83,7 @@
               id="menu"
               class="icon-button"
               aria-label="Toggle navigation"
+              aria-controls="sidebar"
               aria-expanded="false"
             >
               ☰</button
@@ -247,7 +249,7 @@
                   <option value="suspicious">Suspicious</option></select
                 ><span id="device-result-count" class="muted"></span>
               </div>
-              <div class="table-scroll">
+              <div class="table-scroll" tabindex="0" role="region" aria-label="Device inventory, scroll for more columns">
                 <table>
                   <thead>
                     <tr>
@@ -350,7 +352,12 @@
               </p>
             </article>
           </section>
-          <section class="panel"><div class="panel-heading"><h2>Operator activity</h2></div><div id="operator-activity"></div></section>
+          <section class="panel"><div class="panel-heading"><h2>Operator activity</h2></div><div id="operator-activity" tabindex="0" role="region" aria-label="Operator activity"></div></section>
+          <div class="project-identity" role="group" aria-label="Project organizations">
+            <img src="assets/brand/logos/ieee-computer-society.png" width="150" height="46" alt="IEEE Computer Society" />
+            <p><strong>IEEE BAU Computer Society</strong><span>A project by The Four Horsemen</span><a href="https://belalhamdan.com/cipher/" target="_blank" rel="noopener noreferrer">About CIPHER <span aria-hidden="true">↗</span></a></p>
+            <img class="branch-logo" src="assets/brand/logos/ieee-bau-branch.png" width="124" height="61" alt="IEEE Al-Balqa Applied University, Faculty of Engineering Technology student branch" />
+          </div>
           <footer>
             <span><b>CIPHER</b> / NETWORK DETECTION & RESPONSE</span
             ><span id="last-updated">Awaiting authenticated connection</span>
@@ -358,8 +365,9 @@
         </main>
       </div>
     </div>
-    <dialog id="auth-dialog">
+    <dialog id="auth-dialog" aria-labelledby="auth-title" aria-describedby="auth-description">
       <form id="auth-form">
+        <img class="auth-mark" src="assets/cipher-logo.svg" width="44" height="44" alt="" />
         <div class="dialog-heading">
           <div>
             <div class="eyebrow">OPERATOR ACCESS</div>
@@ -405,7 +413,7 @@
         </p>
       </form>
     </dialog>
-    <dialog id="action-dialog">
+    <dialog id="action-dialog" aria-labelledby="action-title" aria-describedby="action-description">
       <form id="action-form">
         <div class="dialog-heading">
           <h2 id="action-title">Isolate device?</h2>

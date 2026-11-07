@@ -44,6 +44,18 @@ const views = {
     "Know which parts of your protection pipeline are reporting.",
   ],
 };
+const mobileNavigation = matchMedia("(max-width: 650px)");
+function setSidebar(open, moveFocus = false) {
+  const sidebar = $("sidebar");
+  const wasOpen = sidebar.classList.contains("open");
+  open = mobileNavigation.matches && open;
+  sidebar.classList.toggle("open", open);
+  sidebar.inert = mobileNavigation.matches && !open;
+  $("menu").setAttribute("aria-expanded", String(open));
+  if (moveFocus && open) sidebar.querySelector('nav a[aria-current="page"]')?.focus();
+  else if (moveFocus && wasOpen) $("menu").focus();
+}
+mobileNavigation.addEventListener("change", () => setSidebar(false));
 const fmt = (n) => Number(n || 0).toLocaleString();
 function bytes(n) {
   if (!n) return "0 B";
@@ -73,7 +85,7 @@ function empty(title, text) {
   return `<div class="empty compact"><div><span class="empty-icon">◇</span><h3>${escapeHtml(title)}</h3><p>${escapeHtml(text)}</p></div></div>`;
 }
 function badge(label, kind = label) {
-  return `<span class="badge ${escapeHtml(kind)}">${escapeHtml(label)}</span>`;
+  return `<span class="badge ${escapeHtml(kind)}">${escapeHtml(String(label).replaceAll("_", " "))}</span>`;
 }
 function toast(message) {
   $("toast").textContent = message;
@@ -131,8 +143,7 @@ function switchView() {
     intelligence: "Threat intelligence",
     engine: "Engine health",
   }[view];
-  $("sidebar").classList.remove("open");
-  $("menu").setAttribute("aria-expanded", "false");
+  setSidebar(false, true);
 }
 function notice(title, message, warning = false, auth = false) {
   $("notice").hidden = false;
@@ -146,8 +157,7 @@ function connection(text, online = false) {
     `<i class="dot ${online ? "online" : ""}"></i>${escapeHtml(text)}`;
 }
 function signOut() {
-  $("sidebar").classList.remove("open");
-  $("menu").setAttribute("aria-expanded", "false");
+  setSidebar(false, true);
   state.generation++;
   state.token = null;
   state.data = null;
@@ -338,7 +348,7 @@ function renderChart() {
   const grid = [0, 0.5, 1]
     .map(
       (v) =>
-        `<line x1="58" x2="622" y1="${y(max * v)}" y2="${y(max * v)}" stroke="#263745" stroke-dasharray="3 5"/><text x="0" y="${y(max * v) + 4}">${bytes(max * v)}</text>`,
+        `<line x1="58" x2="622" y1="${y(max * v)}" y2="${y(max * v)}" class="chart-grid" stroke-dasharray="3 5"/><text x="0" y="${y(max * v) + 4}">${bytes(max * v)}</text>`,
     )
     .join("");
   const labels = [0, 15, 30, 45, 59]
@@ -347,7 +357,7 @@ function renderChart() {
         `<text x="${x(i)}" y="202" text-anchor="${i === 59 ? "end" : "start"}">${new Date(buckets[i].time * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</text>`,
     )
     .join("");
-  el.innerHTML = `<svg viewBox="0 0 638 216" role="img" aria-label="Reported inbound and outbound payload bytes per minute for the last hour"><defs><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#8ce8c2" stop-opacity=".13"/><stop offset="1" stop-color="#8ce8c2" stop-opacity="0"/></linearGradient></defs>${grid}<path d="${path("in")} L622,176 L58,176 Z" fill="url(#fill)"/><path d="${path("in")}" fill="none" stroke="#8ce8c2" stroke-width="2"/><path d="${path("out")}" fill="none" stroke="#a59af5" stroke-width="2"/>${labels}${buckets.map((b, i) => `<rect x="${x(i) - 4}" y="20" width="9.5" height="158" fill="transparent"><title>${new Date(b.time * 1000).toLocaleTimeString()} · Inbound ${bytes(b.in)} · Outbound ${bytes(b.out)}</title></rect>`).join("")}</svg>`;
+  el.innerHTML = `<svg viewBox="0 0 638 216" role="img" aria-label="Reported inbound and outbound payload bytes per minute for the last hour"><defs><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1"><stop class="chart-area-stop" stop-opacity=".13"/><stop offset="1" class="chart-area-stop" stop-opacity="0"/></linearGradient></defs>${grid}<path d="${path("in")} L622,176 L58,176 Z" fill="url(#fill)"/><path d="${path("in")}" fill="none" class="series-in" stroke-width="2"/><path d="${path("out")}" fill="none" class="series-out" stroke-width="2"/>${labels}${buckets.map((b, i) => `<rect x="${x(i) - 4}" y="20" width="9.5" height="158" fill="transparent"><title>${new Date(b.time * 1000).toLocaleTimeString()} · Inbound ${bytes(b.in)} · Outbound ${bytes(b.out)}</title></rect>`).join("")}</svg>`;
 }
 function renderHealth() {
   const d = state.data,
@@ -601,33 +611,15 @@ $("auth-form").onsubmit = async (event) => {
   }
 };
 $("logout").onclick = signOut;
-$("sidebar-close").onclick = () => {
-  $("sidebar").classList.remove("open");
-  $("menu").setAttribute("aria-expanded", "false");
-  $("menu").focus();
-};
-$("menu").onclick = () => {
-  $("sidebar").classList.toggle("open");
-  $("menu").setAttribute(
-    "aria-expanded",
-    String($("sidebar").classList.contains("open")),
-  );
-};
+$("sidebar-close").onclick = () => setSidebar(false, true);
+$("menu").onclick = () => setSidebar(!$("sidebar").classList.contains("open"), true);
 document.addEventListener("click", (event) => {
-  if (
-    window.innerWidth <= 650 &&
-    !$("sidebar").contains(event.target) &&
-    !$("menu").contains(event.target)
-  ) {
-    $("sidebar").classList.remove("open");
-    $("menu").setAttribute("aria-expanded", "false");
+  if (mobileNavigation.matches && !$("sidebar").contains(event.target) && !$("menu").contains(event.target)) {
+    setSidebar(false);
   }
 });
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") {
-    $("sidebar").classList.remove("open");
-    $("menu").setAttribute("aria-expanded", "false");
-  }
+  if (event.key === "Escape") setSidebar(false, true);
 });
 $("network").onchange = async () => {
   $("action-dialog").close();
@@ -649,7 +641,7 @@ function openAction(path, payload, title, description) {
   state.action = {path, payload};
   $("action-title").textContent = title;
   $("action-description").textContent = description;
-  $("action-submit").className = "button";
+  $("action-submit").className = `button${payload.state === "blocked" || payload.mode === "enforce" ? " danger" : ""}`;
   $("action-error").textContent = "";
   $("action-dialog").showModal();
 }
